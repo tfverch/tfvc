@@ -5,11 +5,9 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"os"
-	"runtime"
-	"strings"
 
 	junit "github.com/jstemmer/go-junit-report/formatter"
+	"github.com/liamg/clinch/terminal"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -20,6 +18,7 @@ func (u Updates) Less(i, j int) bool { return u[i].SortKey() < u[j].SortKey() }
 func (u Updates) Swap(i, j int)      { u[i], u[j] = u[j], u[i] }
 
 type Update struct {
+	Type              string `json:"type,omitempty"`
 	Path              string `json:"path,omitempty"`
 	Name              string `json:"name,omitempty"`
 	Source            string `json:"source,omitempty"`
@@ -33,6 +32,25 @@ type Update struct {
 
 func (u *Update) SortKey() string {
 	return fmt.Sprint(u.Path, u.Name)
+}
+
+func (u *Update) DefaultOutput() {
+	width, _ := terminal.Size()
+	if width <= 0 {
+		width = 80
+	}
+
+	// fmt.Printf("%#v\n", u)
+	// out := tml.Sprintf("<italic>%s %s</italic>", u.Type, u.Source)
+	// if u.MatchingUpdate {
+	// 	out += tml.Sprintf(" <bold><yellow>WARNING</yellow></bold>")
+	// 	out += tml.Sprintf(" <bold>Version constraint does not include the latest available version</bold>\n")
+	// }
+	// if u.NonMatchingUpdate {
+	// 	out += tml.Sprintf(" <bold><red>FAILED</red></bold>")
+	// 	out += tml.Sprintf(" <bold>Version constraint does not include the latest available version</bold>\n")
+	// }
+	// tml.Printf("%s\n\n", out)
 }
 
 func (u Updates) Format(w io.Writer, as Format) error {
@@ -68,35 +86,23 @@ func (u Updates) WriteJSON(w io.Writer) error {
 	return enc.Encode(u)
 }
 
-func (u Updates) GenerateSed() {
-	io.WriteString(os.Stdout, "\nTo upgrade modules to the latest version, run the following commands:\n\n")
-	for _, item := range u {
-		sed := "sed"
-		if runtime.GOOS == "darwin" {
-			sed = "gsed"
-		}
-		newversion := strings.Replace(item.Source, item.Version, item.LatestOverall, -1)
-		io.WriteString(os.Stdout, fmt.Sprintf("%s -i 's#%s#%s#g' %s\n", sed, item.Source, newversion, item.Path))
-	}
-}
-
 func (u Updates) WriteMarkdownWide(w io.Writer) error {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Update?", "Name", "Path", "Source", "Constraint", "Version", "Latest matching", "Latest"})
+	table.SetHeader([]string{"Type", "Name", "Path", "Source", "Constraint", "Version", "Latest matching", "Latest"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
 	rows := make([][]string, 0, len(u))
 	for _, item := range u {
-		update := ""
-		switch {
-		case item.MatchingUpdate:
-			update = "Y"
-		case item.NonMatchingUpdate:
-			update = "(Y)"
-		case item.Version == "":
-			update = "?"
-		}
-		row := []string{update, item.Name, item.Path, item.Source, item.VersionConstraint, item.Version, item.LatestMatching, item.LatestOverall}
+		// update := ""
+		// switch {
+		// case item.MatchingUpdate:
+		// 	update = "Y"
+		// case item.NonMatchingUpdate:
+		// 	update = "(Y)"
+		// case item.Version == "":
+		// 	update = "?"
+		// }
+		row := []string{item.Type, item.Name, item.Path, item.Source, item.VersionConstraint, item.Version, item.LatestMatching, item.LatestOverall}
 		rows = append(rows, row)
 	}
 	table.AppendBulk(rows)
@@ -106,21 +112,21 @@ func (u Updates) WriteMarkdownWide(w io.Writer) error {
 
 func (u Updates) WriteMarkdown(w io.Writer) error {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Update?", "Name", "Constraint", "Version", "Latest matching", "Latest"})
+	table.SetHeader([]string{"Type", "Name", "Constraint", "Version", "Latest matching", "Latest"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
 	rows := make([][]string, 0, len(u))
 	for _, item := range u {
-		update := ""
-		switch {
-		case item.MatchingUpdate:
-			update = "Y"
-		case item.NonMatchingUpdate:
-			update = "(Y)"
-		case item.Version == "":
-			update = "?"
-		}
-		row := []string{update, item.Name, item.VersionConstraint, item.Version, item.LatestMatching, item.LatestOverall}
+		// update := ""
+		// switch {
+		// case item.MatchingUpdate:
+		// 	update = "Y"
+		// case item.NonMatchingUpdate:
+		// 	update = "(Y)"
+		// case item.Version == "":
+		// 	update = "?"
+		// }
+		row := []string{item.Type, item.Name, item.VersionConstraint, item.Version, item.LatestMatching, item.LatestOverall}
 		rows = append(rows, row)
 	}
 	table.AppendBulk(rows)

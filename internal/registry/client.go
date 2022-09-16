@@ -77,7 +77,7 @@ func (c *Client) DiscoverProviders(namespace, name string) (string, error) {
 	}
 	defer resp.Body.Close()
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return "", fmt.Errorf("decode provider registry response: %w", err)
+		return "", fmt.Errorf("decode provider registry response: %s", err)
 	}
 	baseUrl := fmt.Sprintf("https://registry.terraform.io/v2/providers/%s/provider-versions", response.Data[0].Id)
 	return baseUrl, nil

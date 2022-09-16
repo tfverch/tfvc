@@ -16,32 +16,30 @@ type ModuleResult struct {
 	ModuleCall tfconfig.ModuleCall
 }
 
-func scan(paths []string) ([]ProviderResult, []ModuleResult, error) {
+func scan(path string) ([]ProviderResult, []ModuleResult, error) {
 	var providers []ProviderResult
 	var modules []ModuleResult
-	for _, path := range paths {
-		module, err := tfconfig.LoadModule(path)
-		if err != nil {
-			return nil, nil, fmt.Errorf("read terraform module %q: %w", path, err)
+	module, err := tfconfig.LoadModule(path)
+	if err != nil {
+		return nil, nil, fmt.Errorf("read terraform module %q: %w", path, err)
+	}
+	for _, prov := range module.RequiredProviders {
+		if prov == nil {
+			continue
 		}
-		for _, prov := range module.RequiredProviders {
-			if prov == nil {
-				continue
-			}
-			providers = append(providers, ProviderResult{
-				ModulePath:          path,
-				ProviderRequirement: *prov,
-			})
+		providers = append(providers, ProviderResult{
+			ModulePath:          path,
+			ProviderRequirement: *prov,
+		})
+	}
+	for _, call := range module.ModuleCalls {
+		if call == nil {
+			continue
 		}
-		for _, call := range module.ModuleCalls {
-			if call == nil {
-				continue
-			}
-			modules = append(modules, ModuleResult{
-				Path:       call.Pos.Filename,
-				ModuleCall: *call,
-			})
-		}
+		modules = append(modules, ModuleResult{
+			Path:       call.Pos.Filename,
+			ModuleCall: *call,
+		})
 	}
 	return providers, modules, nil
 }
