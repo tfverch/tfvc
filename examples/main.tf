@@ -1,12 +1,27 @@
-module "consul" {
-  source  = "hashicorp/consul/aws"
-  version = "~> 0.7"
+terraform {
+  required_version = "~> 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 4.0"
+    }
+  }
 }
 
-# module "consul_github_https_missing_ref" {
-#   source  = "github.com/hashicorp/terraform-aws-consul"
-#   version = "0.7.3"
+# module "consul" {
+#   source  = "hashicorp/consul/aws"
+#   version = "~> 0.7"
 # }
+
+module "consul_github_https_missing_ref" {
+  source  = "github.com/hashicorp/terraform-aws-consul"
+  version = "v0.7.3"
+}
 
 # module "consul_github_https_no_ref" {
 #   source = "github.com/hashicorp/terraform-aws-consul"
