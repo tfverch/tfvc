@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-svchost"
+	svchost "github.com/hashicorp/terraform-svchost"
 )
 
 var (
@@ -99,6 +99,7 @@ func NewModule(host, namespace, name, provider, submodule string) (*Module, erro
 // by comparing with the normalized version of the subject with the normal
 // string equality operator.
 func ParseModuleSource(source string) (*Module, error) {
+	const fourMatch, fiveMatch = 4, 5
 	// See if there is a friendly host prefix.
 	host, rest := ParseFriendlyHost(source)
 	if host != nil {
@@ -108,7 +109,7 @@ func ParseModuleSource(source string) (*Module, error) {
 	}
 
 	matches := moduleSourceRe.FindStringSubmatch(rest)
-	if len(matches) < 4 {
+	if len(matches) < fourMatch {
 		return nil, ErrInvalidModuleSource
 	}
 
@@ -119,7 +120,7 @@ func ParseModuleSource(source string) (*Module, error) {
 		RawProvider:  matches[3],
 	}
 
-	if len(matches) == 5 {
+	if len(matches) == fiveMatch {
 		m.RawSubmodule = matches[4]
 	}
 
@@ -193,13 +194,23 @@ func (m *Module) Module() string {
 	return fmt.Sprintf("%s/%s/%s", m.RawNamespace, m.RawName, m.RawProvider)
 }
 
+var ErrSvcHostComparison = errors.New("error in for comparison of svchost")
+
 // SvcHost returns the svchost.Hostname for this module. Since FriendlyHost may
 // contain an invalid hostname, this also returns an error indicating if it
 // could be converted to a svchost.Hostname. If no host is specified, the
 // default PublicRegistryHost is returned.
 func (m *Module) SvcHost() (svchost.Hostname, error) {
 	if m.RawHost == nil {
-		return svchost.ForComparison(PublicRegistryHost.Raw)
+		comp, err := svchost.ForComparison(PublicRegistryHost.Raw)
+		if err != nil {
+			return "", fmt.Errorf("ErrSvcHostComparison %w : %s", ErrSvcHostComparison, err)
+		}
+		return comp, nil
 	}
-	return svchost.ForComparison(m.RawHost.Raw)
+	comp, err := svchost.ForComparison(m.RawHost.Raw)
+	if err != nil {
+		return "", fmt.Errorf("ErrSvcHostComparison %w : %s", ErrSvcHostComparison, err)
+	}
+	return comp, nil
 }

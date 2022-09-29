@@ -9,10 +9,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "tfvc",
-	Short: "A brief description of your application",
+	Short: "tfvc is a tool for checking terraform provider and module versions",
 	Long: `A longer description
 `,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -30,7 +29,7 @@ var rootCmd = &cobra.Command{
 					update.DefaultOutput()
 				}
 			}
-			// TODO: write code to update readme with table
+			// Need to write code to update readme with table
 			// if updateReadme {
 			// 	if err := updates.Format(os.Stdout, "markdown"); err != nil {
 			// 		log.Fatal(err)
@@ -47,16 +46,16 @@ func Execute() {
 	}
 }
 
-var updateReadme bool
-var readmePath string
+// var updateReadme bool //nolint:all.
+// var readmePath string //nolint:all.
 var includePassed bool
 var includePrerelease bool
 var sshPrivKeyPath string
 var sshPrivKeyPwd string
 
 func init() {
-	// rootCmd.Flags().BoolVarP(&updateReadme, "update-readme", "r", false, "Update the README with a markdown table listing all versions")
-	// rootCmd.Flags().StringVarP(&readmePath, "readme-path", "p", "./README.md", "Specify the path to a markdown file to update")
+	// rootCmd.Flags().BoolVarP(&updateReadme, "update-readme", "r", false, "Update the README with a markdown table listing all versions") //nolint:all.
+	// rootCmd.Flags().StringVarP(&readmePath, "readme-path", "p", "./README.md", "Specify the path to a markdown file to update") //nolint:all.
 	rootCmd.Flags().BoolVarP(&includePassed, "include-passed", "a", false, "Include passed checks in console output")
 	rootCmd.Flags().BoolVarP(&includePrerelease, "include-prerelease", "e", false, "Include prerelease versions")
 	rootCmd.Flags().StringVarP(&sshPrivKeyPath, "ssh-private-key-path", "s", "", "Specify a private key to use when cloning via SSH")

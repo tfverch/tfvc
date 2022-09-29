@@ -68,7 +68,7 @@ func (c *Client) DiscoverProviders(namespace, name string) (string, error) {
 			Attributes struct {
 				FullName string `json:"full-name"`
 			} `json:"attributes"`
-			Id string `json:"id"`
+			ID string `json:"id"`
 		} `json:"data"`
 	}
 	resp, err := c.HTTP.Get(url)
@@ -77,10 +77,10 @@ func (c *Client) DiscoverProviders(namespace, name string) (string, error) {
 	}
 	defer resp.Body.Close()
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return "", fmt.Errorf("decode provider registry response: %s", err)
+		return "", fmt.Errorf("decode provider registry response: %w", err)
 	}
-	baseUrl := fmt.Sprintf("https://registry.terraform.io/v2/providers/%s/provider-versions", response.Data[0].Id)
-	return baseUrl, nil
+	baseURL := fmt.Sprintf("https://registry.terraform.io/v2/providers/%s/provider-versions", response.Data[0].ID)
+	return baseURL, nil
 }
 
 func (c *Client) ListProviderVersions(url string) ([]string, error) {
@@ -89,7 +89,7 @@ func (c *Client) ListProviderVersions(url string) ([]string, error) {
 			Attributes struct {
 				Version string `json:"version"`
 			} `json:"attributes"`
-			Id string `json:"id"`
+			ID string `json:"id"`
 		} `json:"data"`
 	}
 	resp, err := c.HTTP.Get(url)
@@ -100,9 +100,9 @@ func (c *Client) ListProviderVersions(url string) ([]string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return nil, fmt.Errorf("decode provider registry response: %w", err)
 	}
-	var versions []string
-	for _, d := range response.Data {
-		versions = append(versions, d.Attributes.Version)
+	versions := make([]string, len(response.Data))
+	for i, d := range response.Data {
+		versions[i] = d.Attributes.Version
 	}
 	return versions, nil
 }

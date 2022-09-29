@@ -33,7 +33,6 @@ func loader(file *hcl.File, locks *Locks) *Locks {
 
 	seenProviders := make(map[Provider]hcl.Range)
 	for _, block := range content.Blocks {
-
 		switch block.Type {
 		case "provider":
 			lock := decodeProviderLockFromHCL(block)
@@ -86,16 +85,16 @@ func decodeProviderLockFromHCL(block *hcl.Block) *ProviderLock {
 		log.Fatal(diags)
 	}
 
-	version := decodeProviderVersionArgument(addr, content.Attributes["version"])
+	version := decodeProviderVersionArgument(content.Attributes["version"])
 	ret.Version = version
 
-	constraints := decodeProviderVersionConstraintsArgument(addr, content.Attributes["constraints"])
+	constraints := decodeProviderVersionConstraintsArgument(content.Attributes["constraints"])
 	ret.VersionConstraints = constraints
 
 	return ret
 }
 
-func decodeProviderVersionArgument(provider Provider, attr *hcl.Attribute) Version {
+func decodeProviderVersionArgument(attr *hcl.Attribute) Version {
 	expr := attr.Expr
 	var raw *string
 	hclDiags := gohcl.DecodeExpression(expr, nil, &raw)
@@ -109,7 +108,7 @@ func decodeProviderVersionArgument(provider Provider, attr *hcl.Attribute) Versi
 	return version
 }
 
-func decodeProviderVersionConstraintsArgument(provider Provider, attr *hcl.Attribute) VersionConstraints {
+func decodeProviderVersionConstraintsArgument(attr *hcl.Attribute) VersionConstraints {
 	expr := attr.Expr
 	var raw string
 	hclDiags := gohcl.DecodeExpression(expr, nil, &raw)

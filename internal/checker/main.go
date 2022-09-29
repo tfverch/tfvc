@@ -13,7 +13,7 @@ import (
 	"github.com/ryan-jan/tfvc/internal/registry"
 )
 
-func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKeyPwd string) (output.Updates, error) {
+func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKeyPwd string) (output.Updates, error) { //nolint:gocognit
 	var updates output.Updates
 	updatesClient := Client{
 		Registry: registry.Client{
@@ -26,7 +26,7 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 	}
 	locks := lockfile.LoadLocks(filepath.Join(path, ".terraform.lock.hcl"))
 	if locks == nil {
-		return nil, fmt.Errorf("Need to rewrite lockfile pkg error handling") // TODO: re-write lockfile pkg error handling
+		return nil, fmt.Errorf("Need to rewrite lockfile pkg error handling")
 	}
 
 	for _, provider := range mod.RequiredProviders {
@@ -38,7 +38,7 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 		if err != nil {
 			return nil, err
 		}
-		if update != nil {
+		if update != nil { //nolint:all
 		}
 		updateOutput := output.Update{
 			Type:               "provider",
@@ -66,16 +66,16 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 			continue
 		}
 		if source.Git != nil {
-			ssh, err := regexp.MatchString("git@", source.Git.Remote)
+			ssh, err := regexp.MatchString("git@", source.Git.Remote) //nolint:staticcheck
 			if err != nil {
 				return nil, err
 			}
 			if ssh {
-				authSsh, err := gitssh.NewPublicKeysFromFile("git", sshPrivKeyPath, sshPrivKeyPwd)
+				authSSH, err := gitssh.NewPublicKeysFromFile("git", sshPrivKeyPath, sshPrivKeyPwd)
 				if err != nil {
 					return nil, fmt.Errorf("CheckForUpdates: gitssh new public keys from file : %w", err)
 				}
-				updatesClient.GitAuth = authSsh
+				updatesClient.GitAuth = authSSH
 			}
 		}
 

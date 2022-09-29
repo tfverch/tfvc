@@ -9,6 +9,10 @@ import (
 	"github.com/liamg/tml"
 )
 
+const Passed = "PASSED"
+const Warning = "WARNING"
+const Failed = "FAILED"
+
 type Updates []Update
 
 func (u Updates) Len() int           { return len(u) }
@@ -35,22 +39,23 @@ func (u *Update) SortKey() string {
 
 func (u *Update) DefaultOutput() {
 	width, _ := terminal.Size()
+	const detailsPad = 21
 	if width <= 0 {
 		width = 80
 	}
 	out := tml.Sprintf("\n<italic>%s '%s'</italic>", u.Type, u.Name)
 	switch u.Status {
-	case "PASSED":
+	case Passed:
 		out += tml.Sprintf(" <bold><green>PASSED</green></bold>")
-	case "WARNING":
+	case Warning:
 		out += tml.Sprintf(" <bold><yellow>WARNING</yellow></bold>")
-	case "FAILED":
+	case Failed:
 		out += tml.Sprintf(" <bold><red>FAILED</red></bold>")
 	}
 	out += tml.Sprintf(" <bold>%s</bold>\n", u.Message)
 	out += tml.Sprintf("<darkgrey>%s</darkgrey>\n\n", strings.Repeat("─", width))
 	out += tml.Sprintf("  <dim>Resolution</dim>\n  <darkgrey>%s</darkgrey>\n  %s\n\n", strings.Repeat("─", len(u.Resolution)), u.Resolution)
-	out += tml.Sprintf("  <dim>Details</dim>\n  <darkgrey>%s</darkgrey>\n", strings.Repeat("─", len(u.Source)+21))
+	out += tml.Sprintf("  <dim>Details</dim>\n  <darkgrey>%s</darkgrey>\n", strings.Repeat("─", len(u.Source)+detailsPad))
 	out += tml.Sprintf("  <dim>Type:</dim>                %s\n", u.Type)
 	out += tml.Sprintf("  <dim>Path:</dim>                %s\n", u.Path)
 	out += tml.Sprintf("  <dim>Name:</dim>                %s\n", u.Name)
@@ -65,31 +70,31 @@ func (u *Update) DefaultOutput() {
 
 func (u *Update) SetUpdateStatus() {
 	oSegs, mSegs := u.LatestOverall.Segments(), u.LatestMatching.Segments()
-	u.Status = "PASSED"
+	u.Status = Passed
 	u.Message = "No issues detected"
 	u.Resolution = "No issues were detected with the current configuration"
 	if u.Version.String() != "" && u.LatestOverall.String() != "" && u.LatestOverall.GreaterThan(&u.Version) {
-		u.Status = "WARNING"
+		u.Status = Warning
 		u.Message = "Configured version does not match the latest available version"
 		u.Resolution = tml.Sprintf("Consider using the latest version of this %s", u.Type)
 	}
 	if u.Type == "provider" && u.Version.String() != "" && u.LatestMatching.GreaterThan(&u.Version) {
-		u.Status = "WARNING"
+		u.Status = Warning
 		u.Message = "Latest match newer than .terraform.lock.hcl config"
 		u.Resolution = "Consider running 'terraform init -upgrade' to upgrade providers and modules to the latest matching versions"
 	}
 	if len(oSegs) > 0 && len(mSegs) > 0 && u.LatestOverall.GreaterThan(&u.LatestMatching) {
-		u.Status = "WARNING"
+		u.Status = Warning
 		u.Message = "Version constraint does not match the latest available version"
 		u.Resolution = tml.Sprintf("Consider amending this version constraint to include the latest available version of this %s", u.Type)
 	}
 	if (len(oSegs) > 0 && len(mSegs) > 0) && (oSegs[0] > mSegs[0]) {
-		u.Status = "FAILED"
+		u.Status = Failed
 		u.Message = "Outdated major version"
 		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of this %s", u.Type)
 	}
 	if u.VersionConstraints == nil {
-		u.Status = "FAILED"
+		u.Status = Failed
 		u.Message = "Missing version constraints"
 		u.Resolution = tml.Sprintf("Configure version constraints for this %s", u.Type)
 	}
