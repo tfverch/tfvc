@@ -6,6 +6,7 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
+	"github.com/ryan-jan/tfvc/internal/lockfile"
 	"github.com/ryan-jan/tfvc/internal/source"
 )
 
@@ -15,7 +16,7 @@ type ParsedProvider struct {
 	VersionString     string
 	Constraints       goversion.Constraints
 	ConstraintsString string
-	Raw               tfconfig.ProviderRequirement
+	Raw               *tfconfig.ProviderRequirement
 }
 
 type ParsedModule struct {
@@ -24,10 +25,10 @@ type ParsedModule struct {
 	VersionString     string
 	Constraints       goversion.Constraints
 	ConstraintsString string
-	Raw               tfconfig.ModuleCall
+	Raw               *tfconfig.ModuleCall
 }
 
-func parseProvider(raw tfconfig.ProviderRequirement) (*ParsedProvider, error) {
+func parseProvider(raw *tfconfig.ProviderRequirement, locks *lockfile.Locks) (*ParsedProvider, error) {
 	parts := strings.Split(raw.Source, "/")
 	src := &source.Source{
 		RegistryProvider: &source.Registry{
@@ -41,6 +42,19 @@ func parseProvider(raw tfconfig.ProviderRequirement) (*ParsedProvider, error) {
 		return &out, nil
 	}
 	constraintString := strings.Join(raw.VersionConstraints, ",")
+	pr := locks.Providers[lockfile.Provider{
+		Namespace: parts[0],
+		Type:      parts[1],
+		Hostname:  "registry.terraform.io",
+	}]
+	if pr != nil {
+		var err error
+		out.Version, err = goversion.NewVersion(pr.Version.String())
+		if err != nil {
+			return nil, err
+		}
+		out.VersionString = pr.Version.String()
+	}
 	ver, err := goversion.NewVersion(constraintString)
 	if err == nil { // interpret a single-version constraint as a pinned version
 		out.Version = ver
@@ -55,7 +69,7 @@ func parseProvider(raw tfconfig.ProviderRequirement) (*ParsedProvider, error) {
 	return &out, nil
 }
 
-func parseModule(raw tfconfig.ModuleCall) (*ParsedModule, error) {
+func parseModule(raw *tfconfig.ModuleCall) (*ParsedModule, error) {
 	src, err := source.Parse(raw.Source)
 	if err != nil {
 		return nil, fmt.Errorf("parse module call source: %w", err)

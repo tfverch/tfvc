@@ -1,65 +1,65 @@
 package checker
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"regexp"
 
 	gitssh "github.com/go-git/go-git/v5/plumbing/transport/ssh"
+	"github.com/hashicorp/terraform-config-inspect/tfconfig"
 	"github.com/ryan-jan/tfvc/internal/lockfile"
 	"github.com/ryan-jan/tfvc/internal/output"
 	"github.com/ryan-jan/tfvc/internal/registry"
 )
 
-func CheckForUpdates(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKeyPwd string) output.Updates {
+func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKeyPwd string) (output.Updates, error) {
 	var updates output.Updates
 	updatesClient := Client{
 		Registry: registry.Client{
 			HTTP: http.DefaultClient,
 		},
 	}
-	providerResults, moduleResults, err := scan(path)
+	mod, err := tfconfig.LoadModule(path)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("reading root terraform module %q: %w", path, err)
 	}
-	lockfile := lockfile.LoadLocks(filepath.Join(path, ".terraform.lock.hcl"))
-	if lockfile == nil {
+	locks := lockfile.LoadLocks(filepath.Join(path, ".terraform.lock.hcl"))
+	if locks == nil {
+		return nil, fmt.Errorf("Need to rewrite lockfile pkg error handling") // TODO: re-write lockfile pkg error handling
 	}
 
-	for _, provider := range providerResults {
-		parsed, err := parseProvider(provider.ProviderRequirement)
+	for _, provider := range mod.RequiredProviders {
+		parsed, err := parseProvider(provider, locks)
 		if err != nil {
-			log.Printf("error: %v", err)
-			continue
+			return nil, err
 		}
-
 		update, err := updatesClient.Update(*parsed.Source, parsed.Version, parsed.Constraints, includePrerelease)
 		if err != nil {
-			log.Printf("error: %v", err)
-			continue
+			return nil, err
+		}
+		if update != nil {
 		}
 		updateOutput := output.Update{
-			Type:              "provider",
-			Path:              provider.ModulePath,
-			Name:              provider.ProviderRequirement.Source,
-			Source:            provider.ProviderRequirement.Source,
-			VersionConstraint: parsed.ConstraintsString,
-			Version:           parsed.VersionString,
-			LatestMatching:    update.LatestMatchingVersion,
-			MatchingUpdate:    update.LatestMatchingUpdate != "",
-			LatestOverall:     update.LatestOverallVersion,
-			NonMatchingUpdate: update.LatestOverallUpdate != "" && update.LatestOverallUpdate != update.LatestMatchingVersion,
+			Type:               "provider",
+			Path:               path,
+			Name:               provider.Source,
+			Source:             provider.Source,
+			VersionConstraints: parsed.Constraints,
+			LatestMatching:     update.LatestMatchingVersion,
+			LatestOverall:      update.LatestOverallVersion,
 		}
+		if parsed.Version != nil {
+			updateOutput.Version = *parsed.Version
+		}
+		updateOutput.SetUpdateStatus()
 		updates = append(updates, updateOutput)
-
 	}
 
-	for _, module := range moduleResults {
-		parsed, err := parseModule(module.ModuleCall)
+	for _, module := range mod.ModuleCalls {
+		parsed, err := parseModule(module)
 		if err != nil {
-			log.Printf("error: %v", err)
-			continue
+			return nil, err
 		}
 		source := *parsed.Source
 		if source.Local != nil {
@@ -68,12 +68,12 @@ func CheckForUpdates(path string, includePrerelease bool, sshPrivKeyPath string,
 		if source.Git != nil {
 			ssh, err := regexp.MatchString("git@", source.Git.Remote)
 			if err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			if ssh {
 				authSsh, err := gitssh.NewPublicKeysFromFile("git", sshPrivKeyPath, sshPrivKeyPwd)
 				if err != nil {
-					log.Fatal(err)
+					return nil, fmt.Errorf("CheckForUpdates: gitssh new public keys from file : %w", err)
 				}
 				updatesClient.GitAuth = authSsh
 			}
@@ -81,24 +81,22 @@ func CheckForUpdates(path string, includePrerelease bool, sshPrivKeyPath string,
 
 		update, err := updatesClient.Update(source, parsed.Version, parsed.Constraints, includePrerelease)
 		if err != nil {
-			log.Printf("error: %v", err)
-			continue
+			return nil, err
 		}
-
 		updateOutput := output.Update{
-			Type:              "module",
-			Path:              module.Path,
-			Name:              module.ModuleCall.Name,
-			Source:            module.ModuleCall.Source,
-			VersionConstraint: parsed.ConstraintsString,
-			Version:           parsed.VersionString,
-			LatestMatching:    update.LatestMatchingVersion,
-			MatchingUpdate:    update.LatestMatchingUpdate != "",
-			LatestOverall:     update.LatestOverallVersion,
-			NonMatchingUpdate: update.LatestOverallUpdate != "" && update.LatestOverallUpdate != update.LatestMatchingVersion,
+			Type:               "module",
+			Path:               module.Pos.Filename,
+			Name:               module.Name,
+			Source:             module.Source,
+			VersionConstraints: parsed.Constraints,
+			LatestMatching:     update.LatestMatchingVersion,
+			LatestOverall:      update.LatestOverallVersion,
 		}
+		if parsed.Version != nil {
+			updateOutput.Version = *parsed.Version
+		}
+		updateOutput.SetUpdateStatus()
 		updates = append(updates, updateOutput)
 	}
-
-	return updates
+	return updates, nil
 }
