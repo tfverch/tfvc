@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"sort"
 
 	"github.com/ryan-jan/tfvc/internal/checker"
 	"github.com/spf13/cobra"
@@ -15,9 +17,18 @@ var rootCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		for _, path := range args {
-			updates := checker.CheckForUpdates(path, includePrerelease, sshPrivKeyPath, sshPrivKeyPwd)
+			updates, err := checker.Main(path, includePrerelease, sshPrivKeyPath, sshPrivKeyPwd)
+			if err != nil {
+				fmt.Printf("Error: %s\n", err)
+				os.Exit(1)
+			}
+			sort.Slice(updates, func(i, j int) bool {
+				return updates[i].Status < updates[j].Status
+			})
 			for _, update := range updates {
-				update.DefaultOutput()
+				if includePassed || update.Status != "PASSED" {
+					update.DefaultOutput()
+				}
 			}
 			// TODO: write code to update readme with table
 			// if updateReadme {
@@ -38,14 +49,16 @@ func Execute() {
 
 var updateReadme bool
 var readmePath string
+var includePassed bool
 var includePrerelease bool
 var sshPrivKeyPath string
 var sshPrivKeyPwd string
 
 func init() {
 	// rootCmd.Flags().BoolVarP(&updateReadme, "update-readme", "r", false, "Update the README with a markdown table listing all versions")
-	// rootCmd.Flags().StringVarP(&readmePath, "readme-path", "a", "./README.md", "Specify the path to a markdown file to update")
-	rootCmd.Flags().BoolVarP(&includePrerelease, "include-prerelease", "p", false, "Include prerelease versions")
+	// rootCmd.Flags().StringVarP(&readmePath, "readme-path", "p", "./README.md", "Specify the path to a markdown file to update")
+	rootCmd.Flags().BoolVarP(&includePassed, "include-passed", "a", false, "Include passed checks in console output")
+	rootCmd.Flags().BoolVarP(&includePrerelease, "include-prerelease", "e", false, "Include prerelease versions")
 	rootCmd.Flags().StringVarP(&sshPrivKeyPath, "ssh-private-key-path", "s", "", "Specify a private key to use when cloning via SSH")
 	rootCmd.Flags().StringVarP(&sshPrivKeyPwd, "ssh-private-key-pwd", "w", "", "Specify a password for the private key if required")
 }

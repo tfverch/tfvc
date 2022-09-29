@@ -14,7 +14,6 @@ func LoadLocks(path string) *Locks {
 	file, diag := hclparse.NewParser().ParseHCLFile(path)
 	if diag == nil {
 		locks = loader(file, locks)
-		return locks
 	}
 	return locks
 }
@@ -41,17 +40,17 @@ func loader(file *hcl.File, locks *Locks) *Locks {
 			if lock == nil {
 				continue
 			}
-			if previousRng, exists := seenProviders[lock.addr]; exists {
+			if previousRng, exists := seenProviders[lock.Addr]; exists {
 				diag = diag.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagError,
 					Summary:  "Duplicate provider lock",
-					Detail:   fmt.Sprintf("This lockfile already declared a lock for provider %s at %s.", lock.addr.String(), previousRng.String()),
+					Detail:   fmt.Sprintf("This lockfile already declared a lock for provider %s at %s.", lock.Addr.String(), previousRng.String()),
 					Subject:  block.TypeRange.Ptr(),
 				})
 				continue
 			}
-			locks.providers[lock.addr] = lock
-			seenProviders[lock.addr] = block.DefRange
+			locks.Providers[lock.Addr] = lock
+			seenProviders[lock.Addr] = block.DefRange
 
 		default:
 			// Shouldn't get here because this should be exhaustive for
@@ -63,7 +62,7 @@ func loader(file *hcl.File, locks *Locks) *Locks {
 
 func NewLocks() *Locks {
 	return &Locks{
-		providers: make(map[Provider]*ProviderLock),
+		Providers: make(map[Provider]*ProviderLock),
 	}
 }
 
@@ -74,7 +73,7 @@ func decodeProviderLockFromHCL(block *hcl.Block) *ProviderLock {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ret.addr = addr
+	ret.Addr = addr
 
 	content, diags := block.Body.Content(&hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
@@ -88,10 +87,10 @@ func decodeProviderLockFromHCL(block *hcl.Block) *ProviderLock {
 	}
 
 	version := decodeProviderVersionArgument(addr, content.Attributes["version"])
-	ret.version = version
+	ret.Version = version
 
 	constraints := decodeProviderVersionConstraintsArgument(addr, content.Attributes["constraints"])
-	ret.versionConstraints = constraints
+	ret.VersionConstraints = constraints
 
 	return ret
 }

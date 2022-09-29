@@ -10,23 +10,20 @@ import (
 )
 
 type Provider = tfaddr.Provider
-
+type Version = versions.Version
+type VersionConstraints = constraints.IntersectionSpec
 type Locks struct {
-	providers           map[Provider]*ProviderLock
-	overriddenProviders map[Provider]struct{}
-	sources             map[string][]byte
+	Providers           map[Provider]*ProviderLock
+	OverriddenProviders map[Provider]struct{}
+	Sources             map[string][]byte
 }
 
 type ProviderLock struct {
 	// addr is the address of the provider this lock applies to.
-	addr               Provider
-	version            Version
-	versionConstraints VersionConstraints
+	Addr               Provider
+	Version            Version
+	VersionConstraints VersionConstraints
 }
-
-type Version = versions.Version
-
-type VersionConstraints = constraints.IntersectionSpec
 
 type ParserError struct {
 	Summary string

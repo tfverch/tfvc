@@ -19,10 +19,10 @@ type Client struct {
 }
 
 type Update struct {
-	LatestMatchingVersion string
-	LatestOverallVersion  string
-	LatestMatchingUpdate  string
-	LatestOverallUpdate   string
+	LatestMatchingVersion goversion.Version
+	LatestOverallVersion  goversion.Version
+	LatestMatchingUpdate  goversion.Version
+	LatestOverallUpdate   goversion.Version
 }
 
 func (c *Client) Update(s source.Source, current *goversion.Version, constraints goversion.Constraints, includePrerelease bool) (*Update, error) {
@@ -35,18 +35,17 @@ func (c *Client) Update(s source.Source, current *goversion.Version, constraints
 		if !includePrerelease && v.Prerelease() != "" {
 			continue
 		}
-		versionString := v.Original()
-		out.LatestOverallVersion = versionString
+		out.LatestOverallVersion = *v
 		if current != nil && !v.GreaterThan(current) {
 			continue
 		}
-		out.LatestOverallUpdate = versionString
+		out.LatestOverallUpdate = *v
 		if constraints == nil || !constraints.Check(v) {
 			continue
 		}
-		out.LatestMatchingVersion = versionString
+		out.LatestMatchingVersion = *v
 		if current != nil {
-			out.LatestMatchingUpdate = versionString
+			out.LatestMatchingUpdate = *v
 		}
 	}
 	return &out, nil
