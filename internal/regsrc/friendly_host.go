@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-svchost"
+	svchost "github.com/hashicorp/terraform-svchost"
 )
 
 var (
@@ -54,6 +54,8 @@ var (
 	hostRe = regexp.MustCompile("^" + hostSubRe + "$")
 )
 
+const twoParts = 2
+
 // FriendlyHost describes a registry instance identified in source strings by a
 // simple bare hostname like registry.terraform.io.
 type FriendlyHost struct {
@@ -75,11 +77,11 @@ func NewFriendlyHost(host string) *FriendlyHost {
 // explicitly for user-input strings by calling Valid() on the
 // returned host.
 func ParseFriendlyHost(source string) (host *FriendlyHost, rest string) {
-	parts := strings.SplitN(source, "/", 2)
+	parts := strings.SplitN(source, "/", twoParts)
 
 	if hostRe.MatchString(parts[0]) {
 		host = &FriendlyHost{Raw: parts[0]}
-		if len(parts) == 2 {
+		if len(parts) == twoParts {
 			rest = parts[1]
 		}
 		return

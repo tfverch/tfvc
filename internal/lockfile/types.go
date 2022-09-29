@@ -1,6 +1,7 @@
 package lockfile
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/apparentlymart/go-versions/versions"
@@ -45,3 +46,5 @@ func ParseVersion(str string) (Version, error) {
 func ParseVersionConstraints(str string) (VersionConstraints, error) {
 	return constraints.ParseRubyStyleMulti(str)
 }
+
+var ErrParseProviderPart = errors.New("error parsing provider parts")

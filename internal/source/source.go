@@ -20,7 +20,7 @@ func (s Source) Type() string {
 		return "git"
 	case s.Registry != nil:
 		return "registry"
-	case s.Registry != nil:
+	case s.RegistryProvider != nil:
 		return "registryprovider"
 	case s.Local != nil:
 		return "local"

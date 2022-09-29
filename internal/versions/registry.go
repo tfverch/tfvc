@@ -44,7 +44,7 @@ func Registry(client registry.Client, hostname, namespace, name, provider string
 func RegistryProvider(client registry.Client, namespace, name string) ([]*goversion.Version, error) {
 	baseURL, err := client.DiscoverProviders(namespace, name)
 	if err != nil {
-		return nil, fmt.Errorf("discover registry for providers: %s", err)
+		return nil, fmt.Errorf("discover registry for providers: %w", err)
 	}
 	versions, err := client.ListProviderVersions(baseURL)
 	if err != nil {
