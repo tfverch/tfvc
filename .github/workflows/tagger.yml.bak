@@ -15,9 +15,9 @@ jobs:
           go-version-file: go.mod
           cache: true
           cache-dependency-path: go.sum
-      - name: install svu
+      - name: Install svu
         run: go install github.com/caarlos0/svu@v1.9.0
-      - name: create tag if required
+      - name: Create tag if required
         run: |
           export next=$(svu next)
           git tag $next
