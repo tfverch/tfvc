@@ -19,6 +19,9 @@ jobs:
         run: go install github.com/caarlos0/svu@v1.9.0
       - name: Create tag if required
         run: |
-          export next=$(svu next)
-          git tag $next
-          git push origin $next
+          cur=$(git describe --tags --abbrev=0)
+          next=$(svu next)
+          if [[ $cur != $next ]]; then
+            git tag $next
+            git push origin $next
+          fi

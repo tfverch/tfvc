@@ -7,9 +7,9 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 	goversion "github.com/hashicorp/go-version"
-	"github.com/ryan-jan/tfvc/internal/registry"
-	"github.com/ryan-jan/tfvc/internal/source"
-	"github.com/ryan-jan/tfvc/internal/versions"
+	"github.com/tfverch/tfvc/internal/registry"
+	"github.com/tfverch/tfvc/internal/source"
+	"github.com/tfverch/tfvc/internal/versions"
 )
 
 type Client struct {
