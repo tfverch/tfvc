@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ryan-jan/tfvc/cmd"
+import "github.com/tfverch/tfvc/cmd"
 
 func main() {
 	cmd.Execute()

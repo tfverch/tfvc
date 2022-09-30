@@ -1,6 +1,6 @@
-module github.com/ryan-jan/tfvc
+module github.com/tfverch/tfvc
 
-go 1.18
+go 1.19
 
 require (
 	github.com/apparentlymart/go-versions v1.0.1

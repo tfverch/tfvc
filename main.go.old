@@ -13,12 +13,12 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/ryan-jan/tfvc/internal/httputil"
-	"github.com/ryan-jan/tfvc/internal/modulecall"
-	"github.com/ryan-jan/tfvc/internal/output"
-	"github.com/ryan-jan/tfvc/internal/registry"
-	"github.com/ryan-jan/tfvc/internal/scan"
-	"github.com/ryan-jan/tfvc/internal/update"
+	"github.com/tfverch/tfvc/internal/httputil"
+	"github.com/tfverch/tfvc/internal/modulecall"
+	"github.com/tfverch/tfvc/internal/output"
+	"github.com/tfverch/tfvc/internal/registry"
+	"github.com/tfverch/tfvc/internal/scan"
+	"github.com/tfverch/tfvc/internal/update"
 
 	"github.com/peterbourgon/ff/v3/ffcli"
 	"github.com/sgreben/flagvar"
