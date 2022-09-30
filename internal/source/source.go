@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ryan-jan/tfvc/internal/regsrc"
+	"github.com/tfverch/tfvc/internal/regsrc"
 )
 
 type Source struct {

@@ -6,8 +6,8 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
-	"github.com/ryan-jan/tfvc/internal/lockfile"
-	"github.com/ryan-jan/tfvc/internal/source"
+	"github.com/tfverch/tfvc/internal/lockfile"
+	"github.com/tfverch/tfvc/internal/source"
 )
 
 type ParsedProvider struct {

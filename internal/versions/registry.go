@@ -6,7 +6,7 @@ import (
 	"sort"
 
 	goversion "github.com/hashicorp/go-version"
-	"github.com/ryan-jan/tfvc/internal/registry"
+	"github.com/tfverch/tfvc/internal/registry"
 )
 
 func Registry(client registry.Client, hostname, namespace, name, provider string) ([]*goversion.Version, error) {

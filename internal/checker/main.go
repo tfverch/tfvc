@@ -8,9 +8,9 @@ import (
 
 	gitssh "github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
-	"github.com/ryan-jan/tfvc/internal/lockfile"
-	"github.com/ryan-jan/tfvc/internal/output"
-	"github.com/ryan-jan/tfvc/internal/registry"
+	"github.com/tfverch/tfvc/internal/lockfile"
+	"github.com/tfverch/tfvc/internal/output"
+	"github.com/tfverch/tfvc/internal/registry"
 )
 
 func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKeyPwd string) (output.Updates, error) { //nolint:gocognit

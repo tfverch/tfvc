@@ -5,8 +5,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/ryan-jan/tfvc/internal/checker"
 	"github.com/spf13/cobra"
+	"github.com/tfverch/tfvc/internal/checker"
 )
 
 var rootCmd = &cobra.Command{
