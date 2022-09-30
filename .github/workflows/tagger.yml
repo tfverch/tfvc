@@ -10,21 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Bump version and push tag
+        id: tag-version
+        uses: mathieudutour/github-tag-action@v6.0
         with:
-          fetch-depth: 0
-      - run: git fetch --force --tags
-      - uses: actions/setup-go@v3
-        with:
-          go-version-file: go.mod
-          cache: true
-          cache-dependency-path: go.sum
-      - name: Install svu
-        run: go install github.com/caarlos0/svu@v1.9.0
-      - name: Create tag if required
-        run: |
-          cur=$(git describe --tags --abbrev=0)
-          next=$(svu next)
-          if [[ $cur != $next ]]; then
-            git tag $next
-            git push origin $next
-          fi
+          github_token: ${{ secrets.GH_PAT }}
+          default_bump: false
