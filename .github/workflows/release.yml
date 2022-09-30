@@ -26,7 +26,7 @@ jobs:
         # More assembly might be required: Docker logins, GPG, etc. It all depends
         # on your needs.
       - run: go install github.com/goreleaser/goreleaser@latest
-      - name: Semantic Release
+      - name: Semantic release + goreleaser
         uses: cycjimmy/semantic-release-action@v3
         with:
           extra_plugins: |
