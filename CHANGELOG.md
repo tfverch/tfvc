@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/tfverch/tfvc/compare/v0.2.4...v0.3.0) (2022-09-30)
+
+
+### Features
+
+* add homebrew to goreleaser ([e2f11f9](https://github.com/tfverch/tfvc/commit/e2f11f9e51d2453b8d7ec7e43aa8442f17eec1c6))
+
 ## [0.2.4](https://github.com/tfverch/tfvc/compare/v0.2.3...v0.2.4) (2022-09-30)
 
 
