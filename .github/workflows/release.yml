@@ -1,18 +1,31 @@
-name: semantic-release
+name: release
 on:
   push:
     branches:
       - main
     tags-ignore:
       - "*"
+permissions:
+  contents: write
+  packages: write
 jobs:
-  semantic-release:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+          fetch-depth: 0
+      - run: git fetch --force --tags
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">= 1.19"
+          cache: true
+        # More assembly might be required: Docker logins, GPG, etc. It all depends
+        # on your needs.
+      - run: go install github.com/goreleaser/goreleaser@latest
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v3
         with:
