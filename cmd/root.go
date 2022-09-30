@@ -11,7 +11,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "tfvc",
-	Short: "tfvc is a tool for checking terraform provider and module versions",
+	Short: "tfvc is a tool for checking terraform provider and module versions are up to date",
 	Long: `A longer description
 `,
 	Run: func(cmd *cobra.Command, args []string) {

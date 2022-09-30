@@ -10,6 +10,7 @@ builds:
     goarch:
       - amd64
       - arm64
+
 archives:
   - replacements:
       darwin: Darwin
@@ -17,10 +18,20 @@ archives:
       windows: Windows
       386: i386
       amd64: x86_64
+
+brews:
+  - tap:
+      owner: tfverch
+      name: homebrew-tfvc
+    homepage: https://github.com/tfverch/tfvc
+    description: tfvc is a tool for checking terraform provider and module versions are up to date
+
 checksum:
   name_template: "checksums.txt"
+
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
+
 changelog:
   sort: asc
   filters:
