@@ -72,6 +72,20 @@ dockers:
     use: buildx
     build_flag_templates:
       - --platform=linux/arm64/v8
+  - image_templates: ["tfverch/{{ .ProjectName }}-ci:{{ .Tag }}-amd64"]
+    ids:
+      - tfvc
+    dockerfile: Dockerfile.ci
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/amd64
+  - image_templates: ["tfverch/{{ .ProjectName }}-ci:{{ .Tag }}-arm64v8"]
+    ids:
+      - tfvc
+    dockerfile: Dockerfile.ci
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/arm64/v8
 
 docker_manifests:
   - name_template: "tfverch/{{ .ProjectName }}:{{ .Tag }}"
