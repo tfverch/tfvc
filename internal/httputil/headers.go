@@ -1,6 +1,9 @@
 package httputil
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type AddHeadersRoundtripper struct {
 	Headers http.Header
@@ -13,5 +16,9 @@ func (h AddHeadersRoundtripper) RoundTrip(r *http.Request) (*http.Response, erro
 			r.Header.Add(k, v)
 		}
 	}
-	return h.Nested.RoundTrip(r)
+	resp, err := h.Nested.RoundTrip(r)
+	if err != nil {
+		return nil, fmt.Errorf("error http round trip %w", err)
+	}
+	return resp, nil
 }

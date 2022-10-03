@@ -51,7 +51,7 @@ func parseProvider(raw *tfconfig.ProviderRequirement, locks *lockfile.Locks) (*P
 		var err error
 		out.Version, err = goversion.NewVersion(pr.Version.String())
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("goversion new version %w", err)
 		}
 		out.VersionString = pr.Version.String()
 	}

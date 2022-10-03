@@ -21,10 +21,17 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: ">= 1.19"
+          go-version-file: go.mod
           cache: true
-        # More assembly might be required: Docker logins, GPG, etc. It all depends
-        # on your needs.
+          cache-dependency-path: go.sum
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v2
+      - name: Login to docker.io registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - run: go install github.com/goreleaser/goreleaser@latest
       - name: Semantic release + goreleaser
         uses: cycjimmy/semantic-release-action@v3

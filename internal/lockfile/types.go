@@ -40,11 +40,19 @@ const UnknownProviderNamespace = "?"
 const LegacyProviderNamespace = "-"
 
 func ParseVersion(str string) (Version, error) {
-	return versions.ParseVersion(str)
+	version, err := versions.ParseVersion(str)
+	if err != nil {
+		return version, fmt.Errorf("error parsing version %w", err)
+	}
+	return version, nil
 }
 
 func ParseVersionConstraints(str string) (VersionConstraints, error) {
-	return constraints.ParseRubyStyleMulti(str)
+	constraints, err := constraints.ParseRubyStyleMulti(str)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing constraints %w", err)
+	}
+	return constraints, nil
 }
 
 var ErrParseProviderPart = errors.New("error parsing provider parts")
