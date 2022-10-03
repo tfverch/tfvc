@@ -1,3 +1,10 @@
+## [0.3.2](https://github.com/tfverch/tfvc/compare/v0.3.1...v0.3.2) (2022-10-03)
+
+
+### Bug Fixes
+
+* docker manifests ([abbc8a0](https://github.com/tfverch/tfvc/commit/abbc8a0486eb9009a41e54188a23079910e08a9a))
+
 ## [0.3.1](https://github.com/tfverch/tfvc/compare/v0.3.0...v0.3.1) (2022-10-03)
 
 
