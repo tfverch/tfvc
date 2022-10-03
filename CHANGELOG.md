@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/tfverch/tfvc/compare/v0.3.0...v0.3.1) (2022-10-03)
+
+
+### Bug Fixes
+
+* linter errors and docker build ([27105a4](https://github.com/tfverch/tfvc/commit/27105a4ab4c819339209d7f475bdbd9ef8a36d96))
+
 # [0.3.0](https://github.com/tfverch/tfvc/compare/v0.2.4...v0.3.0) (2022-09-30)
 
 
