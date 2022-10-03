@@ -26,7 +26,7 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 	}
 	locks := lockfile.LoadLocks(filepath.Join(path, ".terraform.lock.hcl"))
 	if locks == nil {
-		return nil, fmt.Errorf("Need to rewrite lockfile pkg error handling")
+		return nil, fmt.Errorf("Need to rewrite lockfile pkg error handling") //nolint:all
 	}
 
 	for _, provider := range mod.RequiredProviders {
@@ -68,12 +68,12 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 		if source.Git != nil {
 			ssh, err := regexp.MatchString("git@", source.Git.Remote) //nolint:staticcheck
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("Main: error checking git ssh regex %w", err)
 			}
 			if ssh {
 				authSSH, err := gitssh.NewPublicKeysFromFile("git", sshPrivKeyPath, sshPrivKeyPwd)
 				if err != nil {
-					return nil, fmt.Errorf("CheckForUpdates: gitssh new public keys from file : %w", err)
+					return nil, fmt.Errorf("Main: gitssh new public keys from file : %w", err)
 				}
 				updatesClient.GitAuth = authSSH
 			}

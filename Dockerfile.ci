@@ -1,0 +1,14 @@
+FROM alpine:latest
+
+# install git
+RUN apk add --no-cache git
+
+COPY tfvc /usr/bin/tfvc
+
+## use a non-privileged user
+RUN adduser -D tfvc
+USER tfvc
+
+# as we are not specifying an entrypoint, this is the default executed command
+# that you could override
+CMD [ "tfvc", "--help" ]

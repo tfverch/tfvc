@@ -38,3 +38,78 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+
+dockers:
+  - image_templates: ["tfverch/{{ .ProjectName }}:{{ .Tag }}-amd64"]
+    ids:
+      - tfvc
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - --build-arg
+      - --no-cache
+      - --platform=linux/amd64
+  - image_templates: ["tfverch/{{ .ProjectName }}:{{ .Tag }}-arm64v8"]
+    ids:
+      - tfvc
+    goarch: arm64
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/arm64/v8
+  - image_templates: ["tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}-amd64"]
+    ids:
+      - tfvc
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/amd64
+  - image_templates: ["tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}-arm64v8"]
+    ids:
+      - tfvc
+    goarch: arm64
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/arm64/v8
+
+docker_manifests:
+  - name_template: "tfverch/{{ .ProjectName }}:{{ .Tag }}"
+    image_templates:
+      - tfverch/{{ .ProjectName }}:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}:{{ .Tag }}-amd64
+  - name_template: "tfverch/{{ .ProjectName }}:latest"
+    image_templates:
+      - tfverch/{{ .ProjectName }}:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}:{{ .Tag }}-amd64
+  - name_template: "tfverch/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}"
+    skip_push: auto
+    image_templates:
+      - tfverch/{{ .ProjectName }}:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}:{{ .Tag }}-amd64
+  - name_template: "tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}"
+    image_templates:
+      - tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}-amd64
+  - name_template: "tfverch/{{ .ProjectName }}-alpine:latest"
+    image_templates:
+      - tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}-amd64
+  - name_template: "tfverch/{{ .ProjectName }}-alpine:v{{ .Major }}.{{ .Minor }}"
+    skip_push: auto
+    image_templates:
+      - tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}-alpine:{{ .Tag }}-amd64
+  - name_template: "tfverch/{{ .ProjectName }}-ci:{{ .Tag }}"
+    image_templates:
+      - tfverch/{{ .ProjectName }}-ci:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}-ci:{{ .Tag }}-amd64
+  - name_template: "tfverch/{{ .ProjectName }}-ci:latest"
+    image_templates:
+      - tfverch/{{ .ProjectName }}-ci:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}-ci:{{ .Tag }}-amd64
+  - name_template: "tfverch/{{ .ProjectName }}-ci:v{{ .Major }}.{{ .Minor }}"
+    skip_push: auto
+    image_templates:
+      - tfverch/{{ .ProjectName }}-ci:{{ .Tag }}-arm64v8
+      - tfverch/{{ .ProjectName }}-ci:{{ .Tag }}-amd64
