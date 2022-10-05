@@ -3,6 +3,7 @@ package checker
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 
@@ -24,11 +25,19 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 	if diag.HasErrors() {
 		return nil, fmt.Errorf("Main: reading root terraform module %q: %w", path, diag.Err())
 	}
-	locks, err := lockfile.LoadLocks(filepath.Join(path, ".terraform.lock.hcl"))
-	if err != nil {
-		return nil, fmt.Errorf("Main: %w", err)
+	lockfilepath := filepath.Join(path, ".terraform.lock.hcl")
+	locks := &lockfile.Locks{}
+	if _, err := os.Stat(lockfilepath); err != nil {
+		if os.IsNotExist(err) {
+			fmt.Printf("") // .terraform.lock.hcl not found. Need to actually write a warning function to advise to run terrafrom init.
+		}
+	} else {
+		var loadErr error
+		locks, loadErr = lockfile.LoadLocks(lockfilepath)
+		if loadErr != nil {
+			return nil, fmt.Errorf("Main: %w", err)
+		}
 	}
-
 	for _, provider := range mod.RequiredProviders {
 		parsed, err := parseProvider(provider, locks)
 		if err != nil {
@@ -37,8 +46,6 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 		update, err := updatesClient.Update(*parsed.Source, parsed.Version, parsed.Constraints, includePrerelease)
 		if err != nil {
 			return nil, err
-		}
-		if update != nil { //nolint:all
 		}
 		updateOutput := output.Update{
 			Type:               "provider",
@@ -55,7 +62,6 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 		updateOutput.SetUpdateStatus()
 		updates = append(updates, updateOutput)
 	}
-
 	for _, module := range mod.ModuleCalls {
 		parsed, err := parseModule(module)
 		if err != nil {
@@ -78,7 +84,6 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 				updatesClient.GitAuth = authSSH
 			}
 		}
-
 		update, err := updatesClient.Update(source, parsed.Version, parsed.Constraints, includePrerelease)
 		if err != nil {
 			return nil, err
