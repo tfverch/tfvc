@@ -83,17 +83,16 @@ func parseModule(raw *tfconfig.ModuleCall) (*ParsedModule, error) {
 				out.Version = ver
 			}
 			out.VersionString = *ref
+			constraints, err := goversion.NewConstraint(*ref)
+			if err != nil {
+				return nil, fmt.Errorf("parse constraint %q: %w", raw.Version, err)
+			}
+			out.Constraints = constraints
+			out.ConstraintsString = raw.Version
 		}
 		if raw.Version == "" {
 			return &out, nil
 		}
-		// this adds (non-terraform-standard..) support for version constraints to Git sources
-		constraints, err := goversion.NewConstraint(raw.Version)
-		if err != nil {
-			return nil, fmt.Errorf("parse constraint %q: %w", raw.Version, err)
-		}
-		out.Constraints = constraints
-		out.ConstraintsString = raw.Version
 	case src.Registry != nil:
 		if raw.Version == "" {
 			return &out, nil

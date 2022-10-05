@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			sort.Slice(updates, func(i, j int) bool {
-				return updates[i].Status < updates[j].Status
+				return updates[i].StatusInt < updates[j].StatusInt
 			})
 			for _, update := range updates {
 				if includePassed || update.Status != "PASSED" {
@@ -35,6 +35,7 @@ var rootCmd = &cobra.Command{
 			// 		log.Fatal(err)
 			// 	}
 			// }
+			os.Exit(updates[len(updates)-1].StatusInt)
 		}
 	},
 }

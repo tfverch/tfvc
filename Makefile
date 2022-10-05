@@ -5,4 +5,10 @@ quality:
 
 .PHONY: build
 build:
-	goreleaser release --snapshot --rm-dist
+	goreleaser build --snapshot --rm-dist
+
+.PHONY: image
+image:
+	cp ./dist/tfvc_linux_amd64_v1/tfvc ./tfvc
+	docker buildx build -t tfvc-test --no-cache --platform=linux/amd64 .
+	rm ./tfvc
