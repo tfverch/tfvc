@@ -27,9 +27,9 @@ terraform {
 # }
 
 # Git module configured with outdated static version - should warn
-module "consul_github_https" {
-  source  = "github.com/hashicorp/terraform-aws-consul?ref=v0.8.0"
-}
+# module "consul_github_https" {
+#   source  = "github.com/hashicorp/terraform-aws-consul?ref=v0.8.0"
+# }
 
 # module "example_git_scp" {
 #   source  = "git::git@github.com:keilerkonzept/terraform-module-versions?ref=0.12.0"

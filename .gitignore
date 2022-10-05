@@ -3,4 +3,4 @@ release/
 /*.tf
 
 dist/
-examples/.terraform/
+examples/**/.terraform/
