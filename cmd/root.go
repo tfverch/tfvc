@@ -15,6 +15,7 @@ var rootCmd = &cobra.Command{
 	Long: `A longer description
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		exitStatus := 0
 		for _, path := range args {
 			updates, err := checker.Main(path, includePrerelease, sshPrivKeyPath, sshPrivKeyPwd)
 			if err != nil {
@@ -35,8 +36,12 @@ var rootCmd = &cobra.Command{
 			// 		log.Fatal(err)
 			// 	}
 			// }
-			os.Exit(updates[len(updates)-1].StatusInt)
+			highestStatus := updates[len(updates)-1].StatusInt
+			if highestStatus > exitStatus {
+				exitStatus = highestStatus
+			}
 		}
+		os.Exit(exitStatus)
 	},
 }
 
