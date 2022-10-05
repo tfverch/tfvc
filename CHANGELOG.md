@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/tfverch/tfvc/compare/v0.3.2...v0.4.0) (2022-10-05)
+
+
+### Features
+
+* tweak internal logic a update readme ([006ade0](https://github.com/tfverch/tfvc/commit/006ade00a3bd5d3b1ca23e830a8211a48125e1cb))
+
 ## [0.3.2](https://github.com/tfverch/tfvc/compare/v0.3.1...v0.3.2) (2022-10-03)
 
 
