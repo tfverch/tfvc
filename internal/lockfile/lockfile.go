@@ -9,13 +9,14 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 )
 
-func LoadLocks(path string) *Locks {
+func LoadLocks(path string) (*Locks, error) {
 	locks := NewLocks()
 	file, diag := hclparse.NewParser().ParseHCLFile(path)
-	if diag == nil {
-		locks = loader(file, locks)
+	if diag.HasErrors() {
+		return nil, fmt.Errorf("LoadLocks: %s : %w", diag.Error(), diag.Errs()[0])
 	}
-	return locks
+	locks = loader(file, locks)
+	return locks, nil
 }
 
 func loader(file *hcl.File, locks *Locks) *Locks {
@@ -85,11 +86,19 @@ func decodeProviderLockFromHCL(block *hcl.Block) *ProviderLock {
 		log.Fatal(diags)
 	}
 
-	version := decodeProviderVersionArgument(content.Attributes["version"])
-	ret.Version = version
+	v, verExists := content.Attributes["version"]
+	if verExists {
+		version := decodeProviderVersionArgument(v)
+		ret.Version = version
+	}
 
-	constraints := decodeProviderVersionConstraintsArgument(content.Attributes["constraints"])
-	ret.VersionConstraints = constraints
+	v, conExists := content.Attributes["constraints"]
+	if conExists {
+		constraints, err := decodeProviderVersionConstraintsArgument(v)
+		if err == nil {
+			ret.VersionConstraints = constraints
+		}
+	}
 
 	return ret
 }
@@ -108,16 +117,16 @@ func decodeProviderVersionArgument(attr *hcl.Attribute) Version {
 	return version
 }
 
-func decodeProviderVersionConstraintsArgument(attr *hcl.Attribute) VersionConstraints {
+func decodeProviderVersionConstraintsArgument(attr *hcl.Attribute) (VersionConstraints, error) {
 	expr := attr.Expr
 	var raw string
 	hclDiags := gohcl.DecodeExpression(expr, nil, &raw)
 	if hclDiags.HasErrors() {
-		log.Fatal(hclDiags)
+		return nil, fmt.Errorf("provider version constraints argument : decode expression : %w", hclDiags.Errs()[0])
 	}
 	constraints, err := ParseVersionConstraints(raw)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("provider version constraints argument : ParseVersionConstraints : %w", err)
 	}
-	return constraints
+	return constraints, nil
 }

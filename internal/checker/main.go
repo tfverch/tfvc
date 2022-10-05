@@ -20,14 +20,17 @@ func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKey
 			HTTP: http.DefaultClient,
 		},
 	}
-	mod, err := tfconfig.LoadModule(path)
+	mod, diag := tfconfig.LoadModule(path)
+	if diag.HasErrors() {
+		return nil, fmt.Errorf("reading root terraform module %q: %w", path, diag.Err())
+	}
+	locks, err := lockfile.LoadLocks(filepath.Join(path, ".terraform.lock.hcl"))
 	if err != nil {
-		return nil, fmt.Errorf("reading root terraform module %q: %w", path, err)
+		return nil, fmt.Errorf("lockfile LoadLocks: %w", err)
 	}
-	locks := lockfile.LoadLocks(filepath.Join(path, ".terraform.lock.hcl"))
-	if locks == nil {
-		return nil, fmt.Errorf("Need to rewrite lockfile pkg error handling") //nolint:all
-	}
+	// if locks == nil {
+	// 	return nil, fmt.Errorf("Need to rewrite lockfile pkg error handling") //nolint:all
+	// }
 
 	for _, provider := range mod.RequiredProviders {
 		parsed, err := parseProvider(provider, locks)
