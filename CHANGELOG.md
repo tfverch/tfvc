@@ -1,3 +1,10 @@
+## [0.4.1](https://github.com/tfverch/tfvc/compare/v0.4.0...v0.4.1) (2022-10-05)
+
+
+### Bug Fixes
+
+* lockfile load when provider has no constraint ([591053a](https://github.com/tfverch/tfvc/commit/591053a6ef0951e4ab38a266cb6c30cc20687e94))
+
 # [0.4.0](https://github.com/tfverch/tfvc/compare/v0.3.2...v0.4.0) (2022-10-05)
 
 
