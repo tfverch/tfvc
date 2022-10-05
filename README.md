@@ -55,4 +55,4 @@ docker run --rm -it -v "$(pwd):/src" tfverch/tfvc /src
 
 ## Acknowledgements
 
-This project started as a fork of the [github.com/keilerkonzept/terraform-module-versions](https://github.com/keilerkonzept/terraform-module-versions) project. However, given the changes that I needed to make in order to add the features that I wanted to I ended up migrating to this repo. Still, shout out to [keilerkonzept](https://github.com/keilerkonzept) for their work.
+This project started as a fork of the [github.com/keilerkonzept/terraform-module-versions](https://github.com/keilerkonzept/terraform-module-versions) project. However, given the changes that I needed to make to add the features that I wanted to, I ended up migrating to this repo. Still, shout out to [keilerkonzept](https://github.com/keilerkonzept) for their work.
