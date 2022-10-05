@@ -2,7 +2,6 @@ package lockfile
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -15,11 +14,15 @@ func LoadLocks(path string) (*Locks, error) {
 	if diag.HasErrors() {
 		return nil, fmt.Errorf("LoadLocks: %s : %w", diag.Error(), diag.Errs()[0])
 	}
-	locks = loader(file, locks)
+	var err error
+	locks, err = loader(file, locks)
+	if err != nil {
+		return nil, fmt.Errorf("LoadLocks: %w", err)
+	}
 	return locks, nil
 }
 
-func loader(file *hcl.File, locks *Locks) *Locks {
+func loader(file *hcl.File, locks *Locks) (*Locks, error) {
 	content, diag := file.Body.Content(&hcl.BodySchema{
 		Blocks: []hcl.BlockHeaderSchema{
 			{
@@ -28,15 +31,18 @@ func loader(file *hcl.File, locks *Locks) *Locks {
 			},
 		},
 	})
-	if diag != nil {
-		log.Fatal(diag)
+	if diag.HasErrors() {
+		return nil, fmt.Errorf("loader: decode body content : %w", diag.Errs()[0])
 	}
 
 	seenProviders := make(map[Provider]hcl.Range)
 	for _, block := range content.Blocks {
 		switch block.Type {
 		case "provider":
-			lock := decodeProviderLockFromHCL(block)
+			lock, err := decodeProviderLockFromHCL(block)
+			if err != nil {
+				return nil, fmt.Errorf("loader: %w", err)
+			}
 			if lock == nil {
 				continue
 			}
@@ -57,7 +63,7 @@ func loader(file *hcl.File, locks *Locks) *Locks {
 			// all of the block types in the schema above.
 		}
 	}
-	return locks
+	return locks, nil
 }
 
 func NewLocks() *Locks {
@@ -66,12 +72,12 @@ func NewLocks() *Locks {
 	}
 }
 
-func decodeProviderLockFromHCL(block *hcl.Block) *ProviderLock {
+func decodeProviderLockFromHCL(block *hcl.Block) (*ProviderLock, error) {
 	ret := &ProviderLock{}
 	rawAddr := block.Labels[0]
 	addr, err := ParseProviderSource(rawAddr)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("decodeProviderLockFromHCL: ParseProviderSource: %w", err)
 	}
 	ret.Addr = addr
 
@@ -83,13 +89,15 @@ func decodeProviderLockFromHCL(block *hcl.Block) *ProviderLock {
 		},
 	})
 	if diags.HasErrors() {
-		log.Fatal(diags)
+		return nil, fmt.Errorf("decodeProviderLockFromHCL: body content to schema: %w", diags.Errs()[0])
 	}
 
 	v, verExists := content.Attributes["version"]
 	if verExists {
-		version := decodeProviderVersionArgument(v)
-		ret.Version = version
+		version, err := decodeProviderVersionArgument(v)
+		if err == nil {
+			ret.Version = version
+		}
 	}
 
 	v, conExists := content.Attributes["constraints"]
@@ -100,21 +108,21 @@ func decodeProviderLockFromHCL(block *hcl.Block) *ProviderLock {
 		}
 	}
 
-	return ret
+	return ret, nil
 }
 
-func decodeProviderVersionArgument(attr *hcl.Attribute) Version {
+func decodeProviderVersionArgument(attr *hcl.Attribute) (Version, error) {
 	expr := attr.Expr
 	var raw *string
 	hclDiags := gohcl.DecodeExpression(expr, nil, &raw)
 	if hclDiags.HasErrors() {
-		log.Fatal(hclDiags)
+		return Version{}, fmt.Errorf("decodeProviderVersionArgument: DecodeExpression: %w", hclDiags.Errs()[0])
 	}
 	version, err := ParseVersion(*raw)
 	if err != nil {
-		log.Fatal(err)
+		return Version{}, fmt.Errorf("decodeProviderVersionArgument: ParseVersion: %w", err)
 	}
-	return version
+	return version, nil
 }
 
 func decodeProviderVersionConstraintsArgument(attr *hcl.Attribute) (VersionConstraints, error) {
@@ -122,11 +130,11 @@ func decodeProviderVersionConstraintsArgument(attr *hcl.Attribute) (VersionConst
 	var raw string
 	hclDiags := gohcl.DecodeExpression(expr, nil, &raw)
 	if hclDiags.HasErrors() {
-		return nil, fmt.Errorf("provider version constraints argument : decode expression : %w", hclDiags.Errs()[0])
+		return nil, fmt.Errorf("decodeProviderVersionConstraintsArgument: DecodeExpression : %w", hclDiags.Errs()[0])
 	}
 	constraints, err := ParseVersionConstraints(raw)
 	if err != nil {
-		return nil, fmt.Errorf("provider version constraints argument : ParseVersionConstraints : %w", err)
+		return nil, fmt.Errorf("decodeProviderVersionConstraintsArgument : ParseVersionConstraints : %w", err)
 	}
 	return constraints, nil
 }
