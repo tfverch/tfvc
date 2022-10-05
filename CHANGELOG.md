@@ -1,3 +1,11 @@
+## [0.4.2](https://github.com/tfverch/tfvc/compare/v0.4.1...v0.4.2) (2022-10-05)
+
+
+### Bug Fixes
+
+* examples directory and lockfile errors ([b43abe2](https://github.com/tfverch/tfvc/commit/b43abe2712cf1b302e0d35d9bf2a5a1554b57240))
+* exit status and missing lockfile ([ed6f1bf](https://github.com/tfverch/tfvc/commit/ed6f1bfe19d383ec72e565e33dbaaa4eb3789c19))
+
 ## [0.4.1](https://github.com/tfverch/tfvc/compare/v0.4.0...v0.4.1) (2022-10-05)
 
 
