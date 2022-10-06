@@ -1,3 +1,10 @@
+## [0.5.1](https://github.com/tfverch/tfvc/compare/v0.5.0...v0.5.1) (2022-10-06)
+
+
+### Bug Fixes
+
+* ignore local modules ([9195a55](https://github.com/tfverch/tfvc/commit/9195a55138e9b670519780213c0d31075c998106))
+
 # [0.5.0](https://github.com/tfverch/tfvc/compare/v0.4.3...v0.5.0) (2022-10-06)
 
 
