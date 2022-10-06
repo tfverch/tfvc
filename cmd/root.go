@@ -36,9 +36,11 @@ var rootCmd = &cobra.Command{
 			// 		log.Fatal(err)
 			// 	}
 			// }
-			highestStatus := updates[len(updates)-1].StatusInt
-			if highestStatus > exitStatus {
-				exitStatus = highestStatus
+			if len(updates) > 0 {
+				highestStatus := updates[len(updates)-1].StatusInt
+				if highestStatus > exitStatus {
+					exitStatus = highestStatus
+				}
 			}
 		}
 		os.Exit(exitStatus)

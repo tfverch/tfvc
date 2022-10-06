@@ -6,11 +6,11 @@ import (
 
 	"github.com/apparentlymart/go-versions/versions"
 	"github.com/apparentlymart/go-versions/versions/constraints"
-	tfaddr "github.com/hashicorp/terraform-registry-address"
 	svchost "github.com/hashicorp/terraform-svchost"
+	"github.com/tfverch/tfvc/internal/regsrc"
 )
 
-type Provider = tfaddr.Provider
+type Provider = regsrc.Provider
 type Version = versions.Version
 type VersionConstraints = constraints.IntersectionSpec
 type Locks struct {

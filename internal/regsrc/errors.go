@@ -1,6 +1,7 @@
-package tfaddr
+package regsrc
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -12,3 +13,5 @@ type ParserError struct {
 func (pe *ParserError) Error() string {
 	return fmt.Sprintf("%s: %s", pe.Summary, pe.Detail)
 }
+
+var ErrParseProvider = errors.New("error parsing provider")

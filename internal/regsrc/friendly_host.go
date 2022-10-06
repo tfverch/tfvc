@@ -54,8 +54,6 @@ var (
 	hostRe = regexp.MustCompile("^" + hostSubRe + "$")
 )
 
-const twoParts = 2
-
 // FriendlyHost describes a registry instance identified in source strings by a
 // simple bare hostname like registry.terraform.io.
 type FriendlyHost struct {
