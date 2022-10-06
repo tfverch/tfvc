@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/tfverch/tfvc/compare/v0.4.3...v0.5.0) (2022-10-06)
+
+
+### Features
+
+* release new version ([1e79940](https://github.com/tfverch/tfvc/commit/1e79940ec9282fb2b80fc25002fc623102f5abab))
+
 # 1.0.0 (2022-10-06)
 
 
