@@ -34,7 +34,9 @@ func parse(root *tfconfig.Module, locks *lockfile.Locks) ([]Parsed, error) {
 		if err != nil {
 			return nil, fmt.Errorf("parse module call source: %w", err)
 		}
-		parsedSlice = append(parsedSlice, *parsed)
+		if parsed.Source.Local == nil {
+			parsedSlice = append(parsedSlice, *parsed)
+		}
 	}
 	return parsedSlice, nil
 }

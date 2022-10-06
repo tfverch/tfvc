@@ -40,3 +40,7 @@ module "consul" {
 # module "example_with_prerelease_versions" {
 #   source = "git@github.com:kubernetes/api.git?ref=v0.22.2"
 # }
+
+module "local" {
+  source = "./examples"
+}
