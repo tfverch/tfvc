@@ -1,4 +1,4 @@
-package tfaddr
+package regsrc
 
 import (
 	"fmt"
@@ -9,12 +9,14 @@ import (
 )
 
 // Provider encapsulates a single provider type. In the future this will be
-// extended to include additional fields including Namespace and SourceHost
+// extended to include additional fields including Namespace and SourceHost.
 type Provider struct {
 	Type      string
 	Namespace string
 	Hostname  svchost.Hostname
 }
+
+const twoParts, threeParts = 2, 3
 
 // DefaultProviderRegistryHost is the hostname used for provider addresses that do
 // not have an explicit hostname.
@@ -126,7 +128,7 @@ func (pt Provider) IsZero() bool {
 }
 
 // HasKnownNamespace returns true if the provider namespace is known
-// (also if it is legacy namespace)
+// (also if it is legacy namespace).
 func (pt Provider) HasKnownNamespace() bool {
 	return pt.Namespace != UnknownProviderNamespace
 }
@@ -159,14 +161,13 @@ func (pt Provider) LessThan(other Provider) bool {
 	}
 }
 
-// IsLegacy returns true if the provider is a legacy-style provider
+// IsLegacy returns true if the provider is a legacy-style provider.
 func (pt Provider) IsLegacy() bool {
 	if pt.IsZero() {
 		panic("called IsLegacy() on zero-value addrs.Provider")
 	}
 
 	return pt.Hostname == DefaultProviderRegistryHost && pt.Namespace == LegacyProviderNamespace
-
 }
 
 // Equals returns true if the receiver and other provider have the same attributes.
@@ -179,12 +180,13 @@ func (pt Provider) Equals(other Provider) bool {
 // terraform-config-inspect.
 //
 // The following are valid source string formats:
-// 		name
-// 		namespace/name
-// 		hostname/namespace/name
+//
+//	name
+//	namespace/name
+//	hostname/namespace/name
 //
 // "name"-only format is parsed as -/name (i.e. legacy namespace)
-// requiring further identification of the namespace via Registry API
+// requiring further identification of the namespace via Registry API.
 func ParseProviderSource(str string) (Provider, error) {
 	var ret Provider
 	parts, err := parseSourceStringParts(str)
@@ -204,7 +206,7 @@ func ParseProviderSource(str string) (Provider, error) {
 		}, nil
 	}
 
-	if len(parts) >= 2 {
+	if len(parts) >= twoParts {
 		// the namespace is always the second-to-last part
 		givenNamespace := parts[len(parts)-2]
 		if givenNamespace == LegacyProviderNamespace {
@@ -225,7 +227,7 @@ func ParseProviderSource(str string) (Provider, error) {
 	}
 
 	// Final Case: 3 parts
-	if len(parts) == 3 {
+	if len(parts) == threeParts {
 		// the namespace is always the first part in a three-part source string
 		hn, err := svchost.ForComparison(parts[0])
 		if err != nil {
@@ -293,7 +295,7 @@ func ParseProviderSource(str string) (Provider, error) {
 
 // MustParseProviderSource is a wrapper around ParseProviderSource that panics if
 // it returns an error.
-func MustParseProviderSource(raw string) (Provider) {
+func MustParseProviderSource(raw string) Provider {
 	p, err := ParseProviderSource(raw)
 	if err != nil {
 		panic(err)
@@ -310,7 +312,7 @@ func ValidateProviderAddress(raw string) error {
 		return err
 	}
 
-	if len(parts) != 3 {
+	if len(parts) != threeParts {
 		return &ParserError{
 			Summary: "Invalid provider address format",
 			Detail:  `Expected FQN in the format "hostname/namespace/name"`,
@@ -401,7 +403,7 @@ func parseSourceStringParts(str string) ([]string, error) {
 // subsequent call, in which case the result will be identical.
 func ParseProviderPart(given string) (string, error) {
 	if len(given) == 0 {
-		return "", fmt.Errorf("must have at least one character")
+		return "", fmt.Errorf("ParseProviderPart: %w : %s", ErrParseProvider, "must have at least one character")
 	}
 
 	// We're going to process the given name using the same "IDNA" library we
@@ -412,7 +414,7 @@ func ParseProviderPart(given string) (string, error) {
 	// once we've verified it doesn't contain any dots we can just treat it
 	// like a top-level domain for this library's purposes.
 	if strings.ContainsRune(given, '.') {
-		return "", fmt.Errorf("dots are not allowed")
+		return "", fmt.Errorf("ParseProviderPart: %w : %s", ErrParseProvider, "dots are not allowed")
 	}
 
 	// We don't allow names containing multiple consecutive dashes, just as
@@ -421,12 +423,12 @@ func ParseProviderPart(given string) (string, error) {
 	// indicator prefix "xn--" that would cause the IDNA library to interpret
 	// the given name as punycode, because that would be weird and unexpected.
 	if strings.Contains(given, "--") {
-		return "", fmt.Errorf("cannot use multiple consecutive dashes")
+		return "", fmt.Errorf("ParseProviderPart: %w : %s", ErrParseProvider, "cannot use multiple consecutive dashes")
 	}
 
 	result, err := idna.Lookup.ToUnicode(given)
 	if err != nil {
-		return "", fmt.Errorf("must contain only letters, digits, and dashes, and may not use leading or trailing dashes")
+		return "", fmt.Errorf("ParseProviderPart: %w : %s", ErrParseProvider, "must contain only letters, digits, and dashes, and may not use leading or trailing dashes")
 	}
 
 	return result, nil

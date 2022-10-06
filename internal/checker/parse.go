@@ -10,42 +10,49 @@ import (
 	"github.com/tfverch/tfvc/internal/source"
 )
 
-type ParsedProvider struct {
+type Parsed struct {
 	Source            *source.Source
 	Version           *goversion.Version
 	VersionString     string
 	Constraints       goversion.Constraints
 	ConstraintsString string
-	Raw               *tfconfig.ProviderRequirement
+	RawModule         *tfconfig.ModuleCall
+	RawProvider       *tfconfig.ProviderRequirement
 }
 
-type ParsedModule struct {
-	Source            *source.Source
-	Version           *goversion.Version
-	VersionString     string
-	Constraints       goversion.Constraints
-	ConstraintsString string
-	Raw               *tfconfig.ModuleCall
-}
-
-func parseProvider(raw *tfconfig.ProviderRequirement, locks *lockfile.Locks) (*ParsedProvider, error) {
-	parts := strings.Split(raw.Source, "/")
-	src := &source.Source{
-		RegistryProvider: &source.Registry{
-			Namespace:  parts[0],
-			Name:       parts[1],
-			Normalized: raw.Source,
-		},
+func parse(root *tfconfig.Module, locks *lockfile.Locks) ([]Parsed, error) {
+	parsedSlice := make([]Parsed, 0, len(root.RequiredProviders)+len(root.ModuleCalls))
+	for _, prov := range root.RequiredProviders {
+		parsed, err := parseProvider(prov, locks)
+		if err != nil {
+			return nil, fmt.Errorf("parse: %w", err)
+		}
+		parsedSlice = append(parsedSlice, *parsed)
 	}
-	out := ParsedProvider{Source: src, Raw: raw}
+	for _, mod := range root.ModuleCalls {
+		parsed, err := parseModule(mod)
+		if err != nil {
+			return nil, fmt.Errorf("parse module call source: %w", err)
+		}
+		parsedSlice = append(parsedSlice, *parsed)
+	}
+	return parsedSlice, nil
+}
+
+func parseProvider(raw *tfconfig.ProviderRequirement, locks *lockfile.Locks) (*Parsed, error) {
+	src, err := source.ParseProviderSourceString(raw.Source)
+	if err != nil {
+		return nil, fmt.Errorf("parseProvider: %w", err)
+	}
+	out := Parsed{Source: src, RawProvider: raw}
 	if raw.VersionConstraints == nil {
 		return &out, nil
 	}
 	constraintString := strings.Join(raw.VersionConstraints, ",")
 	pr := locks.Providers[lockfile.Provider{
-		Namespace: parts[0],
-		Type:      parts[1],
-		Hostname:  "registry.terraform.io",
+		Namespace: src.RegistryProvider.Namespace,
+		Type:      src.RegistryProvider.Type,
+		Hostname:  src.RegistryProvider.Hostname,
 	}]
 	if pr != nil {
 		var err error
@@ -69,12 +76,12 @@ func parseProvider(raw *tfconfig.ProviderRequirement, locks *lockfile.Locks) (*P
 	return &out, nil
 }
 
-func parseModule(raw *tfconfig.ModuleCall) (*ParsedModule, error) {
+func parseModule(raw *tfconfig.ModuleCall) (*Parsed, error) {
 	src, err := source.Parse(raw.Source)
 	if err != nil {
 		return nil, fmt.Errorf("parse module call source: %w", err)
 	}
-	out := ParsedModule{Source: src, Raw: raw}
+	out := Parsed{Source: src, RawModule: raw}
 	switch {
 	case src.Git != nil:
 		if ref := src.Git.RefValue; ref != nil {

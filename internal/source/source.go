@@ -10,7 +10,7 @@ import (
 type Source struct {
 	Git              *Git
 	Registry         *Registry
-	RegistryProvider *Registry
+	RegistryProvider *RegistryProvider
 	Local            *string
 }
 
@@ -73,4 +73,22 @@ func Parse(raw string) (*Source, error) {
 	default:
 		return nil, fmt.Errorf("%w: %v (%v)", ErrSourceNotSupported, proto, raw)
 	}
+}
+
+func ParseProviderSourceString(str string) (*Source, error) {
+	out := &Source{}
+	ret, err := regsrc.ParseProviderSource(str)
+	if err != nil {
+		return out, fmt.Errorf("ParseProviderSourceString: %w", err)
+	}
+	if !ret.HasKnownNamespace() {
+		ret.Namespace = "hashicorp"
+	}
+	out.RegistryProvider = &RegistryProvider{
+		Type:       ret.Type,
+		Namespace:  ret.Namespace,
+		Hostname:   ret.Hostname,
+		Normalized: ret.String(),
+	}
+	return out, nil
 }

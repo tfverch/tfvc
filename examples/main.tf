@@ -16,10 +16,10 @@ terraform {
 }
 
 # Registry module configured with acceptable constraint - should pass
-# module "consul" {
-#   source  = "hashicorp/consul/aws"
-#   version = "~> 0.7"
-# }
+module "consul" {
+  source  = "hashicorp/consul/aws"
+  version = "~> 0.7"
+}
 
 # Git module configured with no version constraints - should fail
 # module "consul_github_https_no_ref" {
