@@ -1,3 +1,10 @@
+## [0.5.2](https://github.com/tfverch/tfvc/compare/v0.5.1...v0.5.2) (2022-10-12)
+
+
+### Bug Fixes
+
+* undefined provider status ([ee854b3](https://github.com/tfverch/tfvc/commit/ee854b38548282b0c67a54881f32128950cf8894))
+
 ## [0.5.1](https://github.com/tfverch/tfvc/compare/v0.5.0...v0.5.1) (2022-10-06)
 
 
