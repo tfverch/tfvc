@@ -45,13 +45,17 @@ The following parameters are available.
 | --ssh-private-key-path, -s, | string (default: "")  | Path to private key to use for SSH module calls |
 | --ssh-private-key-pwd, -w   | string (default: "")  | Password for private key file if required       |
 
-## Docker Usage
+## Docker usage
 
 As an alternative to installing and running tfvc on your system, you can run tfvc in a Docker container, for example:
 
 ```bash
 docker run --rm -it -v "$(pwd):/src" tfverch/tfvc /src
 ```
+
+## Motivation
+
+While tools such as [dependabot](https://github.com/dependabot) and [renovate](https://docs.renovatebot.com/) provide fully automate dependency updates, I needed something with a lighter touch. tfvc aims to be a simple reporting tool that can be run either locally, or as part of a CI/CD pipeline, to give you feedback on any modules or providers which have updates available.
 
 ## Acknowledgements
 

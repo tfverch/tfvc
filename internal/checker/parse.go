@@ -22,8 +22,8 @@ type Parsed struct {
 
 func parse(root *tfconfig.Module, locks *lockfile.Locks) ([]Parsed, error) {
 	parsedSlice := make([]Parsed, 0, len(root.RequiredProviders)+len(root.ModuleCalls))
-	for _, prov := range root.RequiredProviders {
-		parsed, err := parseProvider(prov, locks)
+	for k, prov := range root.RequiredProviders {
+		parsed, err := parseProvider(k, prov, locks)
 		if err != nil {
 			return nil, fmt.Errorf("parse: %w", err)
 		}
@@ -41,12 +41,18 @@ func parse(root *tfconfig.Module, locks *lockfile.Locks) ([]Parsed, error) {
 	return parsedSlice, nil
 }
 
-func parseProvider(raw *tfconfig.ProviderRequirement, locks *lockfile.Locks) (*Parsed, error) {
+func parseProvider(key string, raw *tfconfig.ProviderRequirement, locks *lockfile.Locks) (*Parsed, error) {
+	out := Parsed{Source: &source.Source{}, RawProvider: raw}
 	src, err := source.ParseProviderSourceString(raw.Source)
 	if err != nil {
+		if raw.Source == "" {
+			out.RawProvider.Source = key
+			out.Source.RegistryProvider = &source.RegistryProvider{}
+			return &out, nil
+		}
 		return nil, fmt.Errorf("parseProvider: %w", err)
 	}
-	out := Parsed{Source: src, RawProvider: raw}
+	out.Source = src
 	if raw.VersionConstraints == nil {
 		return &out, nil
 	}

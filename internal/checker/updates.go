@@ -57,7 +57,9 @@ func updates(p []Parsed, includePrerelease bool, sshPrivKeyPath string, sshPrivK
 			output.Type = "provider"
 			output.Path = path
 			output.Name = parsed.RawProvider.Source
-			output.Source = parsed.RawProvider.Source
+			if parsed.Source.RegistryProvider != nil && parsed.Source.RegistryProvider.Normalized != "" {
+				output.Source = parsed.RawProvider.Source
+			}
 		}
 		if parsed.RawModule != nil {
 			output.Type = "module"
