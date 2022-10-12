@@ -90,6 +90,12 @@ func (u *Update) SetUpdateStatus() {
 		u.Message = "Missing version constraints"
 		u.Resolution = tml.Sprintf("Configure version constraints for this %s", u.Type)
 	}
+	if u.Type == "provider" && u.Source == "" {
+		u.Status, u.StatusInt = failed, failedInt
+		u.Message = "Missing provider definition"
+		u.Resolution = tml.Sprintf("Configure source and version constraint for this provider in the `required_providers` block")
+		u.LatestOverall = goversion.Version{}
+	}
 }
 
 // Need to assess the following as part of the readme update work
