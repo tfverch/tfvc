@@ -1,3 +1,10 @@
+## [0.5.3](https://github.com/tfverch/tfvc/compare/v0.5.2...v0.5.3) (2022-10-13)
+
+
+### Bug Fixes
+
+* outdated version logic ([e7637be](https://github.com/tfverch/tfvc/commit/e7637be85c0956268bd4df2465c13bdbaee1ffe6))
+
 ## [0.5.2](https://github.com/tfverch/tfvc/compare/v0.5.1...v0.5.2) (2022-10-12)
 
 
