@@ -60,8 +60,8 @@ func (u *Update) DefaultOutput() {
 	tml.Printf("%s\n\n", out)
 }
 
-func (u *Update) SetUpdateStatus() {
-	oSegs, mSegs := u.LatestOverall.Segments(), u.LatestMatching.Segments()
+func (u *Update) SetUpdateStatus() { //nolint:gocognit
+	vSegs, oSegs, mSegs := u.Version.Segments(), u.LatestOverall.Segments(), u.LatestMatching.Segments()
 	u.Status, u.StatusInt = passed, passedInt
 	u.Message = "No issues detected"
 	u.Resolution = "No issues were detected with the current configuration"
@@ -81,6 +81,11 @@ func (u *Update) SetUpdateStatus() {
 		u.Resolution = tml.Sprintf("Consider amending this version constraint to include the latest available version of this %s", u.Type)
 	}
 	if (len(oSegs) > 0 && len(mSegs) > 0) && (oSegs[0] > mSegs[0]) {
+		u.Status, u.StatusInt = failed, failedInt
+		u.Message = "Outdated major version"
+		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of this %s", u.Type)
+	}
+	if (len(oSegs) > 0 && len(vSegs) > 0) && (oSegs[0] > vSegs[0]) {
 		u.Status, u.StatusInt = failed, failedInt
 		u.Message = "Outdated major version"
 		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of this %s", u.Type)

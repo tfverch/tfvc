@@ -4,7 +4,8 @@
 [![GoReportCard](https://goreportcard.com/badge/github.com/tfverch/tfvc)](https://goreportcard.com/report/github.com/tfverch/tfvc)
 [![Go version](https://img.shields.io/github/go-mod/go-version/tfverch/tfvc.svg)](https://github.com/tfverch/tfvc)
 
-Terraform version check (tfvc) is a tool for ensuring that your your Terraform code is always configured to use the latest versions of any referenced providers and modules.
+Terraform version check (tfvc) is a reporting tool to identify available updates for providers and modules referenced in your Terraform code. It provides clear warning/failure
+output and resolution guidance for any issues it detects.
 
 **NOTE: This project is currently under heavy development and things WILL break (probably)**
 
