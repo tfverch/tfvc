@@ -1,3 +1,10 @@
+# [0.6.0](https://github.com/tfverch/tfvc/compare/v0.5.3...v0.6.0) (2022-10-14)
+
+
+### Features
+
+* add terraform core version checking ([d115c33](https://github.com/tfverch/tfvc/commit/d115c33274efd7014e6e5bd6c38fa100b84aa661)), closes [#25](https://github.com/tfverch/tfvc/issues/25)
+
 ## [0.5.3](https://github.com/tfverch/tfvc/compare/v0.5.2...v0.5.3) (2022-10-13)
 
 
