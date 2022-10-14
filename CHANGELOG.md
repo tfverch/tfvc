@@ -1,3 +1,10 @@
+## [0.6.1](https://github.com/tfverch/tfvc/compare/v0.6.0...v0.6.1) (2022-10-14)
+
+
+### Bug Fixes
+
+* ssh use default priv keys ([4b84065](https://github.com/tfverch/tfvc/commit/4b840651e8c8d756206e00107d9f323906293adc))
+
 # [0.6.0](https://github.com/tfverch/tfvc/compare/v0.5.3...v0.6.0) (2022-10-14)
 
 
