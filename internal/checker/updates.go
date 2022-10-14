@@ -53,12 +53,18 @@ func updates(p []Parsed, includePrerelease bool, sshPrivKeyPath string, sshPrivK
 		if parsed.Version != nil {
 			output.Version = *parsed.Version
 		}
+		if parsed.RawCore != nil {
+			output.Type = "terraform"
+			output.Path = path
+			output.Name = "terraform"
+			output.Source = "github.com/hashicorp/terraform"
+		}
 		if parsed.RawProvider != nil {
 			output.Type = "provider"
 			output.Path = path
 			output.Name = parsed.RawProvider.Source
 			if parsed.Source.RegistryProvider != nil && parsed.Source.RegistryProvider.Normalized != "" {
-				output.Source = parsed.RawProvider.Source
+				output.Source = parsed.Source.RegistryProvider.Normalized
 			}
 		}
 		if parsed.RawModule != nil {
@@ -136,6 +142,7 @@ func (c *Client) Versions(s source.Source) ([]*goversion.Version, error) {
 		if err != nil {
 			return nil, fmt.Errorf("fetch versions from %q: %w", git.Remote, err)
 		}
+		versions = filterTerraformTags(s, versions)
 		c.VersionsCache[s.URI()] = versions
 		return versions, nil
 	case s.Registry != nil:
@@ -159,4 +166,18 @@ func (c *Client) Versions(s source.Source) ([]*goversion.Version, error) {
 	default:
 		return nil, source.ErrSourceNotSupported
 	}
+}
+
+func filterTerraformTags(s source.Source, versions []*goversion.Version) []*goversion.Version {
+	// This is dumb but hashicorp have left to random tags in their git repo for v11 and 26258 lol!!
+	// Here we simply remove these from the results.
+	vers := []*goversion.Version{}
+	if s.Git.Remote == "https://github.com/hashicorp/terraform.git" {
+		for _, v := range versions {
+			if v.String() != "11.0.0" && v.String() != "26258.0.0" {
+				vers = append(vers, v)
+			}
+		}
+	}
+	return vers
 }

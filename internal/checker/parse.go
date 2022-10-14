@@ -16,12 +16,23 @@ type Parsed struct {
 	VersionString     string
 	Constraints       goversion.Constraints
 	ConstraintsString string
+	RawCore           *RawCore
 	RawModule         *tfconfig.ModuleCall
 	RawProvider       *tfconfig.ProviderRequirement
 }
 
+type RawCore struct {
+	Name            string
+	RequiredVersion []string
+}
+
 func parse(root *tfconfig.Module, locks *lockfile.Locks) ([]Parsed, error) {
-	parsedSlice := make([]Parsed, 0, len(root.RequiredProviders)+len(root.ModuleCalls))
+	parsedSlice := make([]Parsed, 0, len(root.RequiredProviders)+len(root.ModuleCalls)+1) // +1 for the terraform core version
+	parsed, err := parseCore(root.RequiredCore)
+	if err != nil {
+		return nil, fmt.Errorf("parse required core: %w", err)
+	}
+	parsedSlice = append(parsedSlice, *parsed)
 	for k, prov := range root.RequiredProviders {
 		parsed, err := parseProvider(k, prov, locks)
 		if err != nil {
@@ -39,6 +50,30 @@ func parse(root *tfconfig.Module, locks *lockfile.Locks) ([]Parsed, error) {
 		}
 	}
 	return parsedSlice, nil
+}
+
+func parseCore(raw []string) (*Parsed, error) {
+	src, err := source.Parse("github.com/hashicorp/terraform")
+	if err != nil {
+		return nil, fmt.Errorf("parse terraform core source: %w", err)
+	}
+	out := Parsed{Source: src, RawCore: &RawCore{Name: "terraform", RequiredVersion: raw}}
+	if raw == nil {
+		return &out, nil
+	}
+	constraintString := strings.Join(raw, ",")
+	constraints, err := goversion.NewConstraint(constraintString)
+	if err != nil {
+		return nil, fmt.Errorf("parse constraint %q: %w", raw, err)
+	}
+	out.Constraints = constraints
+	out.ConstraintsString = constraintString
+	ver, err := goversion.NewVersion(constraintString)
+	if err == nil { // interpret a single-version constraint as a pinned version
+		out.Version = ver
+		out.VersionString = raw[0]
+	}
+	return &out, nil
 }
 
 func parseProvider(key string, raw *tfconfig.ProviderRequirement, locks *lockfile.Locks) (*Parsed, error) {

@@ -1,6 +1,7 @@
 package output
 
 import (
+	"fmt"
 	"strings"
 
 	goversion "github.com/hashicorp/go-version"
@@ -11,6 +12,7 @@ import (
 const passed, passedInt = "PASSED", 0
 const warning, warningInt = "WARNING", 1
 const failed, failedInt = "FAILED", 2
+const terraform = "terraform"
 
 type Updates []Update
 
@@ -35,7 +37,12 @@ func (u *Update) DefaultOutput() {
 	if width <= 0 {
 		width = 80
 	}
-	out := tml.Sprintf("\n<italic>%s '%s'</italic>", u.Type, u.Name)
+	out := ""
+	if u.Type == terraform {
+		out += tml.Sprintf("\n<italic>%s</italic>", u.Type)
+	} else {
+		out += tml.Sprintf("\n<italic>%s '%s'</italic>", u.Type, u.Name)
+	}
 	switch u.Status {
 	case passed:
 		out += tml.Sprintf(" <bold><green>PASSED</green></bold>")
@@ -68,7 +75,7 @@ func (u *Update) SetUpdateStatus() { //nolint:gocognit
 	if u.Version.String() != "" && u.LatestOverall.String() != "" && u.LatestOverall.GreaterThan(&u.Version) {
 		u.Status, u.StatusInt = warning, warningInt
 		u.Message = "Configured version does not match the latest available version"
-		u.Resolution = tml.Sprintf("Consider using the latest version of this %s", u.Type)
+		u.Resolution = tml.Sprintf("Consider using the latest version of %s", thisOrNot(u.Type))
 	}
 	if u.Type == "provider" && u.Version.String() != "" && u.LatestMatching.GreaterThan(&u.Version) {
 		u.Status, u.StatusInt = warning, warningInt
@@ -78,22 +85,22 @@ func (u *Update) SetUpdateStatus() { //nolint:gocognit
 	if len(oSegs) > 0 && len(mSegs) > 0 && u.LatestOverall.GreaterThan(&u.LatestMatching) {
 		u.Status, u.StatusInt = warning, warningInt
 		u.Message = "Version constraint does not match the latest available version"
-		u.Resolution = tml.Sprintf("Consider amending this version constraint to include the latest available version of this %s", u.Type)
+		u.Resolution = tml.Sprintf("Consider amending this version constraint to include the latest available version of %s", thisOrNot(u.Type))
 	}
 	if (len(oSegs) > 0 && len(mSegs) > 0) && (oSegs[0] > mSegs[0]) {
 		u.Status, u.StatusInt = failed, failedInt
 		u.Message = "Outdated major version"
-		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of this %s", u.Type)
+		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of %s", thisOrNot(u.Type))
 	}
 	if (len(oSegs) > 0 && len(vSegs) > 0) && (oSegs[0] > vSegs[0]) {
 		u.Status, u.StatusInt = failed, failedInt
 		u.Message = "Outdated major version"
-		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of this %s", u.Type)
+		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of %s", thisOrNot(u.Type))
 	}
 	if u.VersionConstraints == nil {
 		u.Status, u.StatusInt = failed, failedInt
 		u.Message = "Missing version constraints"
-		u.Resolution = tml.Sprintf("Configure version constraints for this %s", u.Type)
+		u.Resolution = tml.Sprintf("Configure version constraints for %s", thisOrNot(u.Type))
 	}
 	if u.Type == "provider" && u.Source == "" {
 		u.Status, u.StatusInt = failed, failedInt
@@ -101,6 +108,13 @@ func (u *Update) SetUpdateStatus() { //nolint:gocognit
 		u.Resolution = tml.Sprintf("Configure source and version constraint for this provider in the `required_providers` block")
 		u.LatestOverall = goversion.Version{}
 	}
+}
+
+func thisOrNot(t string) string {
+	if t == terraform {
+		return terraform
+	}
+	return fmt.Sprintf("this %s", t)
 }
 
 // Need to assess the following as part of the readme update work
