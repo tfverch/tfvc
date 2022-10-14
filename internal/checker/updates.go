@@ -1,6 +1,7 @@
 package checker
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -84,17 +85,60 @@ func (c *Client) config(parsed Parsed, sshPrivKeyPath string, sshPrivKeyPwd stri
 	if source.Git != nil {
 		ssh, err := regexp.MatchString("git@", source.Git.Remote)
 		if err != nil {
-			return fmt.Errorf("Main: error checking git ssh regex %w", err)
+			return fmt.Errorf("checking git ssh regex %w", err)
 		}
 		if ssh {
-			authSSH, err := gitssh.NewPublicKeysFromFile("git", sshPrivKeyPath, sshPrivKeyPwd)
+			err := c.setSSHAuth(sshPrivKeyPath, sshPrivKeyPwd)
 			if err != nil {
-				return fmt.Errorf("Main: gitssh new public keys from file : %w", err)
+				return err
 			}
-			c.GitAuth = authSSH
 		}
 	}
 	return nil
+}
+
+func (c *Client) setSSHAuth(sshPrivKeyPath string, sshPrivKeyPwd string) error {
+	sshKeyPath, err := sshKeyPath(sshPrivKeyPath)
+	if err != nil {
+		return err
+	}
+	if sshKeyPath != "" {
+		authSSH, err := gitssh.NewPublicKeysFromFile("git", sshKeyPath, sshPrivKeyPwd)
+		if err != nil {
+			return fmt.Errorf("Main: gitssh new public keys from file : %w", err)
+		}
+		c.GitAuth = authSSH
+	}
+	return nil
+}
+
+func sshKeyPath(sshPrivKeyPath string) (string, error) {
+	if sshPrivKeyPath != "" {
+		return sshPrivKeyPath, nil
+	}
+	names := []string{"id_rsa", "id_cdsa", "id_ecdsa_sk", "id_ed25519", "id_ed25519_sk", "id_dsa"}
+	for _, name := range names {
+		path := fmt.Sprintf("~/.ssh/%s", name)
+		exists, err := exists(path)
+		if err != nil {
+			return "", err
+		}
+		if exists {
+			return path, nil
+		}
+	}
+	return "", nil
+}
+
+func exists(name string) (bool, error) {
+	_, err := os.Stat(name)
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	return false, fmt.Errorf("exists: checking file exists %w", err)
 }
 
 func (c *Client) Update(s source.Source, current *goversion.Version, constraints goversion.Constraints, includePrerelease bool) (*Update, error) {
@@ -169,7 +213,7 @@ func (c *Client) Versions(s source.Source) ([]*goversion.Version, error) {
 }
 
 func filterTerraformTags(s source.Source, versions []*goversion.Version) []*goversion.Version {
-	// This is dumb but hashicorp have left to random tags in their git repo for v11 and 26258 lol!!
+	// This is dumb but hashicorp have left two random tags in their git repo for v11 and 26258 lol!!
 	// Here we simply remove these from the results.
 	vers := []*goversion.Version{}
 	if s.Git.Remote == "https://github.com/hashicorp/terraform.git" {
