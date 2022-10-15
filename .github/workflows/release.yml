@@ -44,3 +44,28 @@ jobs:
             @semantic-release/exec
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+  release-docs:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - name: Install docs dependencies
+        run: pip install -r mkdocs mkdocs-material mike
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Configure the git user
+        run: |
+          git config user.name "Ryan Kowalewski"
+          git config user.email "ryan@ryanjan.uk"
+      - name: Deploy the latest documents
+        run: |
+          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
+          mike deploy --push --update-aliases $VERSION latest
