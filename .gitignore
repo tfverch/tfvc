@@ -2,4 +2,5 @@ binaries/
 release/
 /*.tf
 dist/
+site/
 examples/**/.terraform/
