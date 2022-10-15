@@ -1,0 +1,40 @@
+site_name: tfvc
+repo_name: tfverch/tfvc
+repo_url: https://github.com/tfverch/tfvc
+
+nav:
+  - Home: index.md
+  # - Getting Started: getting-started.md
+  # - Usage: usage.md
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: pink
+      accent: pink
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: pink
+      accent: pink
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+
+extra:
+  version:
+    method: mike
+    provider: mike
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
