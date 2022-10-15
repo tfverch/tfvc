@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/tfverch/tfvc/compare/v0.6.1...v0.7.0) (2022-10-15)
+
+
+### Features
+
+* add initial mkdocs config ([a670249](https://github.com/tfverch/tfvc/commit/a670249e4c0a9095de0532b78992796dbc6d00fc))
+
 ## [0.6.1](https://github.com/tfverch/tfvc/compare/v0.6.0...v0.6.1) (2022-10-14)
 
 
