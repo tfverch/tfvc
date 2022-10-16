@@ -58,7 +58,7 @@ jobs:
         with:
           python-version: 3.x
       - name: Install docs dependencies
-        run: pip install -r mkdocs mkdocs-material mike
+        run: pip install mkdocs mkdocs-material mike
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
       - name: Configure the git user
