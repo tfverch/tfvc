@@ -1,3 +1,10 @@
+## [0.7.2](https://github.com/tfverch/tfvc/compare/v0.7.1...v0.7.2) (2022-10-16)
+
+
+### Bug Fixes
+
+* ci release.yml ([c6f92e7](https://github.com/tfverch/tfvc/commit/c6f92e71e5bc3671a286dcadce1bbfa9ef72715b))
+
 ## [0.7.1](https://github.com/tfverch/tfvc/compare/v0.7.0...v0.7.1) (2022-10-15)
 
 
