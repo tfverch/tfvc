@@ -9,6 +9,7 @@ nav:
 
 theme:
   name: material
+  favicon: /favicon.png
   palette:
     # Palette toggle for light mode
     - scheme: default
