@@ -67,5 +67,5 @@ jobs:
           git config user.email "ryan@ryanjan.uk"
       - name: Deploy the latest documents
         run: |
-          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
+          VERSION=$(git describe --tags --abbrev=0)
           mike deploy --push --update-aliases $VERSION latest
