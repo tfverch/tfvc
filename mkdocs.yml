@@ -4,7 +4,7 @@ repo_url: https://github.com/tfverch/tfvc
 
 nav:
   - Home: index.md
-  # - Getting Started: getting-started.md
+  - Getting Started: getting-started.md
   # - Usage: usage.md
 
 theme:
