@@ -51,7 +51,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          persist-credentials: false
           fetch-depth: 0
       - name: Setup python
         uses: actions/setup-python@v4
@@ -59,11 +58,9 @@ jobs:
           python-version: 3.x
       - name: Install docs dependencies
         run: pip install mkdocs mkdocs-material mike
-      - name: Deploy the latest documents
+      - name: Deploy the latest docs 🚀
         run: |
-          git config user.name "Ryan Kowalewski"
-          git config user.email "ryan@ryanjan.uk"
+          git config --local user.name "Ryan Kowalewski"
+          git config --local user.email "ryan@ryanjan.uk"
           VERSION=$(git describe --tags --abbrev=0)
           mike deploy --push --update-aliases $VERSION latest
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
