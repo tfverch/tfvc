@@ -1,3 +1,10 @@
+## [0.7.7](https://github.com/tfverch/tfvc/compare/v0.7.6...v0.7.7) (2022-10-17)
+
+
+### Bug Fixes
+
+* docs ci pipeline ([bf3c58d](https://github.com/tfverch/tfvc/commit/bf3c58dec78ff7634aee500dca5fca48c166c6af))
+
 ## [0.7.6](https://github.com/tfverch/tfvc/compare/v0.7.5...v0.7.6) (2022-10-17)
 
 
