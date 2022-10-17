@@ -11,6 +11,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      new_release_version: ${{ steps.semantic-release.outputs.new_release_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -33,7 +35,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - run: go install github.com/goreleaser/goreleaser@latest
-      - name: Semantic release + goreleaser
+      - id: semantic-release
+        name: Semantic release + goreleaser
         uses: cycjimmy/semantic-release-action@v3
         with:
           extra_plugins: |
@@ -52,7 +55,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - run: git fetch --force --tags
       - name: Setup python
         uses: actions/setup-python@v4
         with:
@@ -60,8 +62,9 @@ jobs:
       - name: Install docs dependencies
         run: pip install mkdocs mkdocs-material mike
       - name: Deploy the latest docs 🚀
+        if: jobs.release.outputs.new_release_version != ""
         run: |
           git config --local user.name "Ryan Kowalewski"
           git config --local user.email "ryan@ryanjan.uk"
-          VERSION=$(git describe --tags --abbrev=0)
+          VERSION="v${{ jobs.release.outputs.new_release_version }}"
           mike deploy --push --update-aliases $VERSION latest
