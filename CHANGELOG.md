@@ -1,3 +1,10 @@
+## [0.7.4](https://github.com/tfverch/tfvc/compare/v0.7.3...v0.7.4) (2022-10-17)
+
+
+### Bug Fixes
+
+* docs ci release ([db80f4c](https://github.com/tfverch/tfvc/commit/db80f4cda931d7d1a01be1a508305d27b3d135c0))
+
 ## [0.7.3](https://github.com/tfverch/tfvc/compare/v0.7.2...v0.7.3) (2022-10-17)
 
 
