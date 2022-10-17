@@ -11,7 +11,7 @@ output and resolution guidance for any issues it detects.
 
 ## Example output
 
-![Example output](example-output.png)
+![Example output](/docs/example-output.png)
 
 ## Installation
 
