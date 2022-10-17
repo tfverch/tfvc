@@ -24,7 +24,3 @@ output and resolution guidance for any issues it detects.
 
 <img style="padding-top: 1rem;" src="example-output.png" />
 </div>
-
-!!! warning
-
-    This documentation is a work in progress. There's not much here at the moment!

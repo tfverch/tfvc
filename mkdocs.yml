@@ -4,8 +4,12 @@ repo_url: https://github.com/tfverch/tfvc
 
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  # - Usage: usage.md
+  - Docs:
+    - Getting Started: getting-started.md
+    - Usage:
+      - Basic: basic.md
+      - Parameters: params.md
+
 
 theme:
   name: material
@@ -29,6 +33,7 @@ theme:
     - navigation.instant
     - navigation.tracking
     - navigation.tabs
+    - navigation.sections
 
 extra:
   version:
@@ -41,3 +46,7 @@ markdown_extensions:
   - pymdownx.superfences
   - attr_list
   - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets

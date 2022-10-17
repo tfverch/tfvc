@@ -1,8 +1,3 @@
----
-hide:
-  - navigation
----
-
 # Getting Started
 
 ## Installation

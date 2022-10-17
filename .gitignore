@@ -4,3 +4,4 @@ release/
 dist/
 site/
 examples/**/.terraform/
+.DS_Store
