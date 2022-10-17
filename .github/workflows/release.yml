@@ -66,5 +66,5 @@ jobs:
         run: |
           git config --local user.name "Ryan Kowalewski"
           git config --local user.email "ryan@ryanjan.uk"
-          VERSION="v${{ jobs.release.outputs.new_release_version }}"
+          VERSION="v${{ needs.release.outputs.new_release_version }}"
           mike deploy --push --update-aliases $VERSION latest
