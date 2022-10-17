@@ -62,7 +62,7 @@ jobs:
       - name: Install docs dependencies
         run: pip install mkdocs mkdocs-material mike
       - name: Deploy the latest docs 🚀
-        if: needs.release.outputs.new_release_version != ""
+        if: needs.release.outputs.new_release_version != ''
         run: |
           git config --local user.name "Ryan Kowalewski"
           git config --local user.email "ryan@ryanjan.uk"
