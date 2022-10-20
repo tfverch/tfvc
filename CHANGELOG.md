@@ -1,3 +1,10 @@
+## [0.7.9](https://github.com/tfverch/tfvc/compare/v0.7.8...v0.7.9) (2022-10-20)
+
+
+### Bug Fixes
+
+* filterTerraformTags returns empty slice ([084dad5](https://github.com/tfverch/tfvc/commit/084dad5135ef4c398d72c8c4c285f8f36017ecb0))
+
 ## [0.7.8](https://github.com/tfverch/tfvc/compare/v0.7.7...v0.7.8) (2022-10-17)
 
 
