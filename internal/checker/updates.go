@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	"github.com/go-git/go-git/v5/plumbing/transport"
@@ -118,7 +119,11 @@ func sshKeyPath(sshPrivKeyPath string) (string, error) {
 	}
 	names := []string{"id_rsa", "id_cdsa", "id_ecdsa_sk", "id_ed25519", "id_ed25519_sk", "id_dsa"}
 	for _, name := range names {
-		path := fmt.Sprintf("~/.ssh/%s", name)
+		dirname, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		path := filepath.Join(dirname, ".ssh", name)
 		exists, err := exists(path)
 		if err != nil {
 			return "", err
@@ -222,6 +227,7 @@ func filterTerraformTags(s source.Source, versions []*goversion.Version) []*gove
 				vers = append(vers, v)
 			}
 		}
+		return vers
 	}
-	return vers
+	return versions
 }
