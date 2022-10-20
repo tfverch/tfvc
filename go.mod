@@ -13,6 +13,7 @@ require (
 	github.com/liamg/clinch v1.6.1
 	github.com/liamg/tml v0.6.0
 	github.com/spf13/cobra v1.5.0
+	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
 )
 
@@ -27,6 +28,7 @@ require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.42.35 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/gliderlabs/ssh v0.3.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
@@ -49,6 +51,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/ulikunitz/xz v0.5.8 // indirect
