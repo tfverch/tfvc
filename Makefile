@@ -5,7 +5,7 @@ quality:
 
 .PHONY: test
 test:
-	go test -v ./...
+	go test -race -coverpkg=./... -coverprofile=coverage.out -covermode=atomic ./...
 
 .PHONY: build
 build:

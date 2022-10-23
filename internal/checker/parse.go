@@ -92,13 +92,12 @@ func parseProvider(key string, raw *tfconfig.ProviderRequirement, locks *lockfil
 		return &out, nil
 	}
 	constraintString := strings.Join(raw.VersionConstraints, ",")
-	pr := locks.Providers[lockfile.Provider{
+	prov := lockfile.Provider{
 		Namespace: src.RegistryProvider.Namespace,
 		Type:      src.RegistryProvider.Type,
 		Hostname:  src.RegistryProvider.Hostname,
-	}]
-	if pr != nil {
-		var err error
+	}
+	if pr, ok := locks.Providers[prov]; ok {
 		out.Version, err = goversion.NewVersion(pr.Version.String())
 		if err != nil {
 			return nil, fmt.Errorf("goversion new version %w", err)

@@ -5,3 +5,4 @@ dist/
 site/
 examples/**/.terraform/
 .DS_Store
+coverage.out

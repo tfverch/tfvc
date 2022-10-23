@@ -121,7 +121,7 @@ func sshKeyPath(sshPrivKeyPath string) (string, error) {
 	for _, name := range names {
 		dirname, err := os.UserHomeDir()
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("sshKeyPath: get home dir: %w", err)
 		}
 		path := filepath.Join(dirname, ".ssh", name)
 		exists, err := exists(path)
