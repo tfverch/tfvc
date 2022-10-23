@@ -66,14 +66,7 @@ func TestParseCore(t *testing.T) {
 					t.FailNow()
 				}
 			} else {
-				assert.Equal(t, test.expected.Source, parsed.Source)
-				assert.Equal(t, test.expected.Version, parsed.Version)
-				assert.Equal(t, test.expected.VersionString, parsed.VersionString)
-				assert.Equal(t, test.expected.Constraints.String(), parsed.Constraints.String())
-				assert.Equal(t, test.expected.ConstraintsString, parsed.ConstraintsString)
-				assert.Equal(t, test.expected.RawCore, parsed.RawCore)
-				assert.Equal(t, test.expected.RawModule, parsed.RawModule)
-				assert.Equal(t, test.expected.RawProvider, parsed.RawProvider)
+				check(t, test.expected, parsed)
 			}
 		})
 	}
@@ -241,14 +234,7 @@ func TestParseProvider(t *testing.T) {
 					t.FailNow()
 				}
 			} else {
-				assert.Equal(t, test.expected.Source, parsed.Source)
-				assert.Equal(t, test.expected.Version, parsed.Version)
-				assert.Equal(t, test.expected.VersionString, parsed.VersionString)
-				assert.Equal(t, test.expected.Constraints.String(), parsed.Constraints.String())
-				assert.Equal(t, test.expected.ConstraintsString, parsed.ConstraintsString)
-				assert.Equal(t, test.expected.RawCore, parsed.RawCore)
-				assert.Equal(t, test.expected.RawModule, parsed.RawModule)
-				assert.Equal(t, test.expected.RawProvider, parsed.RawProvider)
+				check(t, test.expected, parsed)
 			}
 		})
 	}
@@ -298,15 +284,19 @@ func TestParseModule(t *testing.T) {
 					t.FailNow()
 				}
 			} else {
-				assert.Equal(t, test.expected.Source, parsed.Source)
-				assert.Equal(t, test.expected.Version, parsed.Version)
-				assert.Equal(t, test.expected.VersionString, parsed.VersionString)
-				assert.Equal(t, test.expected.Constraints.String(), parsed.Constraints.String())
-				assert.Equal(t, test.expected.ConstraintsString, parsed.ConstraintsString)
-				assert.Equal(t, test.expected.RawCore, parsed.RawCore)
-				assert.Equal(t, test.expected.RawModule, parsed.RawModule)
-				assert.Equal(t, test.expected.RawProvider, parsed.RawProvider)
+				check(t, test.expected, parsed)
 			}
 		})
 	}
+}
+
+func check(t *testing.T, expected *Parsed, parsed *Parsed) {
+	assert.Equal(t, expected.Source, parsed.Source)
+	assert.Equal(t, expected.Version, parsed.Version)
+	assert.Equal(t, expected.VersionString, parsed.VersionString)
+	assert.Equal(t, expected.Constraints.String(), parsed.Constraints.String())
+	assert.Equal(t, expected.ConstraintsString, parsed.ConstraintsString)
+	assert.Equal(t, expected.RawCore, parsed.RawCore)
+	assert.Equal(t, expected.RawModule, parsed.RawModule)
+	assert.Equal(t, expected.RawProvider, parsed.RawProvider)
 }
