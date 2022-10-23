@@ -1,6 +1,10 @@
-name: Test and coverage
-
+name: test
 on:
+  push: 
+    branches:
+      - main
+    tags-ignore:
+      - "*"
   pull_request:
     paths-ignore:
       - "*.md"
