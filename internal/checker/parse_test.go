@@ -20,21 +20,21 @@ func TestParseCore(t *testing.T) {
 			"Simple ~> 1.0 constraint",
 			[]string{"~> 1.0"},
 			&Parsed{
-				&source.Source{
-					&source.Git{
+				Source: &source.Source{
+					Git: &source.Git{
 						Remote: "https://github.com/hashicorp/terraform.git",
 					},
-					nil,
-					nil,
-					nil,
+					Registry:         nil,
+					RegistryProvider: nil,
+					Local:            nil,
 				},
-				nil,
-				"",
-				cons,
-				"~> 1.0",
-				&RawCore{Name: "terraform", RequiredVersion: []string{"~> 1.0"}},
-				nil,
-				nil,
+				Version:           nil,
+				VersionString:     "",
+				Constraints:       cons,
+				ConstraintsString: "~> 1.0",
+				RawCore:           &RawCore{Name: "terraform", RequiredVersion: []string{"~> 1.0"}},
+				RawModule:         nil,
+				RawProvider:       nil,
 			},
 			false,
 		},
@@ -43,7 +43,8 @@ func TestParseCore(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			parsed, err := parseCore(test.raw)
-			if err != nil {
+			if err != nil && !test.shouldError {
+				t.Error("parseCore returned an unexpected error")
 			}
 			assert.Equal(t, test.expected.Source, parsed.Source)
 			assert.Equal(t, test.expected.Version, parsed.Version)
