@@ -16,13 +16,13 @@ func TestParseCore(t *testing.T) {
 	consSimple, _ := goversion.NewConstraint(strings.Join([]string{"~> 1.0"}, ","))
 	tests := []struct {
 		name        string
-		raw         []string
+		input       []string
 		expected    *Parsed
 		shouldError bool
 	}{
 		{
-			name: "Simple ~> 1.0 constraint",
-			raw:  []string{"~> 1.0"},
+			name:  "Simple ~> 1.0 constraint",
+			input: []string{"~> 1.0"},
 			expected: &Parsed{
 				Source: &source.Source{
 					Git: &source.Git{
@@ -49,7 +49,7 @@ func TestParseCore(t *testing.T) {
 		},
 		{
 			name:        "Error malformed constraint string",
-			raw:         []string{"~>> 1.0"},
+			input:       []string{"~>> 1.0"},
 			expected:    nil,
 			shouldError: true,
 		},
@@ -57,7 +57,7 @@ func TestParseCore(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			parsed, err := parseCore(test.raw)
+			parsed, err := parseCore(test.input)
 			if err != nil {
 				if test.shouldError {
 					t.Logf("shouldError: %v", err)
@@ -87,6 +87,7 @@ func TestParseProvider(t *testing.T) {
 	}
 	locks, _ := lockfile.LoadLocks("./test-data/.terraform.lock.hcl")
 	cons, _ := goversion.NewConstraint(strings.Join([]string{"~> 4.0"}, ","))
+	consPinned, _ := goversion.NewConstraint(strings.Join([]string{"4.0.0"}, ","))
 	vers, _ := goversion.NewVersion("4.0.0")
 	tests := []struct {
 		name        string
@@ -120,6 +121,36 @@ func TestParseProvider(t *testing.T) {
 				RawProvider: &tfconfig.ProviderRequirement{
 					Source:             "hashicorp/google",
 					VersionConstraints: []string{"~> 4.0"},
+				},
+			},
+			shouldError: false,
+		},
+		{
+			name: "Simple 4.0.0 constraint pinning to specific version",
+			input: Input{
+				key: "registry.terraform.io/hashicorp/google",
+				raw: &tfconfig.ProviderRequirement{
+					Source:             "hashicorp/google",
+					VersionConstraints: []string{"4.0.0"},
+				},
+				locks: locks,
+			},
+			expected: &Parsed{
+				Source: &source.Source{
+					RegistryProvider: &source.RegistryProvider{
+						Type:       "google",
+						Namespace:  "hashicorp",
+						Hostname:   svchost.Hostname("registry.terraform.io"),
+						Normalized: "registry.terraform.io/hashicorp/google",
+					},
+				},
+				Version:           vers,
+				VersionString:     "4.0.0",
+				Constraints:       consPinned,
+				ConstraintsString: "4.0.0",
+				RawProvider: &tfconfig.ProviderRequirement{
+					Source:             "hashicorp/google",
+					VersionConstraints: []string{"4.0.0"},
 				},
 			},
 			shouldError: false,
@@ -172,6 +203,31 @@ func TestParseProvider(t *testing.T) {
 			},
 			shouldError: false,
 		},
+		{
+			name: "Empty provider source",
+			input: Input{
+				raw: &tfconfig.ProviderRequirement{
+					Source: "",
+				},
+			},
+			expected: &Parsed{
+				Source: &source.Source{
+					RegistryProvider: &source.RegistryProvider{},
+				},
+				RawProvider: &tfconfig.ProviderRequirement{},
+			},
+			shouldError: false,
+		},
+		{
+			name: "Illegal provider source format",
+			input: Input{
+				raw: &tfconfig.ProviderRequirement{
+					Source: "registry.terraform.io/hashicorp/aws/illegal",
+				},
+			},
+			expected:    nil,
+			shouldError: true,
+		},
 	}
 
 	for _, test := range tests {
@@ -181,7 +237,64 @@ func TestParseProvider(t *testing.T) {
 				if test.shouldError {
 					t.Logf("shouldError: %v", err)
 				} else {
-					t.Errorf("parseCore: %v", err)
+					t.Errorf("Failed with the following unexpected error: %v", err)
+					t.FailNow()
+				}
+			} else {
+				assert.Equal(t, test.expected.Source, parsed.Source)
+				assert.Equal(t, test.expected.Version, parsed.Version)
+				assert.Equal(t, test.expected.VersionString, parsed.VersionString)
+				assert.Equal(t, test.expected.Constraints.String(), parsed.Constraints.String())
+				assert.Equal(t, test.expected.ConstraintsString, parsed.ConstraintsString)
+				assert.Equal(t, test.expected.RawCore, parsed.RawCore)
+				assert.Equal(t, test.expected.RawModule, parsed.RawModule)
+				assert.Equal(t, test.expected.RawProvider, parsed.RawProvider)
+			}
+		})
+	}
+}
+
+func TestParseModule(t *testing.T) {
+	cons, _ := goversion.NewConstraint(strings.Join([]string{"v0.8.0"}, ","))
+	vers, _ := goversion.NewVersion("v0.8.0")
+	refValue := "v0.8.0"
+	tests := []struct {
+		name        string
+		input       *tfconfig.ModuleCall
+		expected    *Parsed
+		shouldError bool
+	}{
+		{
+			name: "Simple git module with ref",
+			input: &tfconfig.ModuleCall{
+				Source: "github.com/hashicorp/terraform-aws-consul?ref=v0.8.0",
+			},
+			expected: &Parsed{
+				Source: &source.Source{
+					Git: &source.Git{
+						Remote:   "https://github.com/hashicorp/terraform-aws-consul.git",
+						RefValue: &refValue,
+					},
+				},
+				Version:       vers,
+				VersionString: "v0.8.0",
+				Constraints:   cons,
+				RawModule: &tfconfig.ModuleCall{
+					Source: "github.com/hashicorp/terraform-aws-consul?ref=v0.8.0",
+				},
+			},
+			shouldError: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			parsed, err := parseModule(test.input)
+			if err != nil {
+				if test.shouldError {
+					t.Logf("shouldError: %v", err)
+				} else {
+					t.Errorf("Failed with the following unexpected error: %v", err)
 					t.FailNow()
 				}
 			} else {
