@@ -13,6 +13,7 @@ const passed, passedInt = "PASSED", 0
 const warning, warningInt = "WARNING", 1
 const failed, failedInt = "FAILED", 2
 const terraform = "terraform"
+const provider = "provider"
 
 type Updates []Update
 
@@ -77,7 +78,7 @@ func (u *Update) SetUpdateStatus() { //nolint:gocognit
 		u.Message = "Configured version does not match the latest available version"
 		u.Resolution = tml.Sprintf("Consider using the latest version of %s", thisOrNot(u.Type))
 	}
-	if u.Type == "provider" && u.Version.String() != "" && u.LatestMatching.GreaterThan(&u.Version) {
+	if u.Type == provider && u.Version.String() != "" && u.LatestMatching.GreaterThan(&u.Version) {
 		u.Status, u.StatusInt = warning, warningInt
 		u.Message = "Latest match newer than .terraform.lock.hcl config"
 		u.Resolution = "Consider running 'terraform init -upgrade' to upgrade providers and modules to the latest matching versions"
@@ -93,16 +94,22 @@ func (u *Update) SetUpdateStatus() { //nolint:gocognit
 		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of %s", thisOrNot(u.Type))
 	}
 	if (len(oSegs) > 0 && len(vSegs) > 0) && (oSegs[0] > vSegs[0]) {
-		u.Status, u.StatusInt = failed, failedInt
-		u.Message = "Outdated major version"
-		u.Resolution = tml.Sprintf("Consider migrating to the latest major version of %s", thisOrNot(u.Type))
+		if u.Type == provider && u.Version.String() != "" {
+			u.Status, u.StatusInt = failed, failedInt
+			u.Message = ".terraform.lock.hcl contains an outdated major version"
+			u.Resolution = tml.Sprintf("Ensure that the version constraint for this provider allows the latest overall version and then run 'terraform init -upgrade' to update the .terraform.lock.hcl file")
+		} else {
+			u.Status, u.StatusInt = failed, failedInt
+			u.Message = "Outdated major version"
+			u.Resolution = tml.Sprintf("Consider migrating to the latest major version of %s", thisOrNot(u.Type))
+		}
 	}
 	if u.VersionConstraints == nil {
 		u.Status, u.StatusInt = failed, failedInt
 		u.Message = "Missing version constraints"
 		u.Resolution = tml.Sprintf("Configure version constraints for %s", thisOrNot(u.Type))
 	}
-	if u.Type == "provider" && u.Source == "" {
+	if u.Type == provider && u.Source == "" {
 		u.Status, u.StatusInt = failed, failedInt
 		u.Message = "Missing provider definition"
 		u.Resolution = tml.Sprintf("Configure source and version constraint for this provider in the `required_providers` block")
