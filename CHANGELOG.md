@@ -1,3 +1,10 @@
+## [0.7.11](https://github.com/tfverch/tfvc/compare/v0.7.10...v0.7.11) (2022-11-05)
+
+
+### Bug Fixes
+
+* error if path is not a valid terraform module ([#50](https://github.com/tfverch/tfvc/issues/50)) ([f0cd4bb](https://github.com/tfverch/tfvc/commit/f0cd4bb74c2ae20a7317fdef23692a7a53a42ce6))
+
 ## [0.7.10](https://github.com/tfverch/tfvc/compare/v0.7.9...v0.7.10) (2022-11-05)
 
 
