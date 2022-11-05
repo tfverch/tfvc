@@ -1,6 +1,7 @@
 package checker
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,10 +11,15 @@ import (
 	"github.com/tfverch/tfvc/internal/output"
 )
 
+var ErrNoTerraformModule = errors.New("no terraform module found")
+
 func Main(path string, includePrerelease bool, sshPrivKeyPath string, sshPrivKeyPwd string) (output.Updates, error) {
+	if !tfconfig.IsModuleDir(path) {
+		return nil, fmt.Errorf("%w at %s", ErrNoTerraformModule, path)
+	}
 	mod, diag := tfconfig.LoadModule(path)
 	if diag.HasErrors() {
-		return nil, fmt.Errorf("Main: reading root terraform module %q: %w", path, diag.Err())
+		return nil, fmt.Errorf("main: reading root terraform module %q: %w", path, diag.Err())
 	}
 	lockfilepath := filepath.Join(path, ".terraform.lock.hcl")
 	locks := &lockfile.Locks{}
