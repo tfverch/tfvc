@@ -1,3 +1,10 @@
+## [0.7.10](https://github.com/tfverch/tfvc/compare/v0.7.9...v0.7.10) (2022-11-05)
+
+
+### Bug Fixes
+
+* improve provider outdated major version message ([#49](https://github.com/tfverch/tfvc/issues/49)) ([3da3977](https://github.com/tfverch/tfvc/commit/3da39772f0adc23190c3e1671c0e241a7ba150e2)), closes [#48](https://github.com/tfverch/tfvc/issues/48)
+
 ## [0.7.9](https://github.com/tfverch/tfvc/compare/v0.7.8...v0.7.9) (2022-10-20)
 
 
