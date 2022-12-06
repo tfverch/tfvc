@@ -2,6 +2,7 @@ package output
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	goversion "github.com/hashicorp/go-version"
@@ -74,9 +75,12 @@ func (u *Update) SetUpdateStatus() { //nolint:gocognit
 	u.Message = "No issues detected"
 	u.Resolution = "No issues were detected with the current configuration"
 	if u.Version.String() != "" && u.LatestOverall.String() != "" && u.LatestOverall.GreaterThan(&u.Version) {
-		u.Status, u.StatusInt = warning, warningInt
-		u.Message = "Configured version does not match the latest available version"
-		u.Resolution = tml.Sprintf("Consider using the latest version of %s", thisOrNot(u.Type))
+		versionBranch, _ := regexp.MatchString("v\\d+", u.VersionConstraints.String())
+		if !versionBranch {
+			u.Status, u.StatusInt = warning, warningInt
+			u.Message = "Configured version does not match the latest available version"
+			u.Resolution = tml.Sprintf("Consider using the latest version of %s", thisOrNot(u.Type))
+		}
 	}
 	if u.Type == provider && u.Version.String() != "" && u.LatestMatching.GreaterThan(&u.Version) {
 		u.Status, u.StatusInt = warning, warningInt
