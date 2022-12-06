@@ -1,3 +1,10 @@
+## [0.7.12](https://github.com/tfverch/tfvc/compare/v0.7.11...v0.7.12) (2022-12-06)
+
+
+### Bug Fixes
+
+* ignore minor/patch if version branch detected ([#52](https://github.com/tfverch/tfvc/issues/52)) ([89ef7dd](https://github.com/tfverch/tfvc/commit/89ef7dd9a1eef7c52df98c663ff5df7be84308da))
+
 ## [0.7.11](https://github.com/tfverch/tfvc/compare/v0.7.10...v0.7.11) (2022-11-05)
 
 
